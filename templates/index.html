@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VAST Config Advisor</title>
+    <style>
+        body { font-family: sans-serif; line-height: 1.5; margin: 20px; background-color: #f4f4f4; color: #333; }
+        .container { max-width: 850px; margin: auto; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .input-section, .results-section { margin-bottom: 20px; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+        h1, h2, h3 { color: #0056b3; }
+        h2 { margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 5px;}
+        h3 { margin-bottom: 5px; }
+        label { display: inline-block; width: 250px; margin-bottom: 5px; font-weight: bold; }
+        input[type="number"] { width: 60px; margin-bottom: 10px; padding: 5px; border: 1px solid #ccc; border-radius: 3px;}
+        button { background-color: #0056b3; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 1em; }
+        button:hover { background-color: #004494; }
+        .result-block { margin-top: 15px; padding: 10px; border: 1px solid #eee; background-color: #f9f9f9; border-radius: 4px; }
+        pre { white-space: pre-wrap; word-wrap: break-word; background-color: #fff; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-family: monospace; font-size: 0.95em; }
+        .error-message { color: #d9534f; font-weight: bold; }
+        .footer-note { margin-top: 30px; font-size: 0.9em; color: #555; border-top: 1px solid #ccc; padding-top: 10px; }
+        .result-content { display: flex; flex-wrap: wrap; gap: 15px; }
+        .result-text { flex: 1; min-width: 300px; }
+        .visualization { flex: 1; min-width: 300px; min-height: 200px; background-color: #f8f8f8; border: 1px solid #ddd; border-radius: 4px; padding: 10px; display: flex; justify-content: center; align-items: center; }
+        .rack-container { position: relative; width: 180px; height: 400px; border: 2px solid #333; background-color: #eee; background-size: cover; background-position: center; }
+        .rack-unit { position: absolute; width: 160px; height: 8px; left: 10px; background-color: #ddd; background-size: cover; background-position: center; }
+        .c-box { background-color: #4285F4; border: 1px solid #2A56C6; }
+        .d-box { background-color: #34A853; border: 1px solid #208B3A; }
+        .switch { background-color: #FBBC05; border: 1px solid #EE8100; }
+        .box-label { font-size: 10px; color: white; text-align: center; line-height: 8px; text-shadow: 1px 1px 1px rgba(0,0,0,0.5); }
+        .rack-legend { display: flex; gap: 10px; margin-top: 10px; font-size: 12px; }
+        .legend-item { display: flex; align-items: center; }
+        .legend-color { width: 15px; height: 15px; margin-right: 5px; }
+        
+        /* Upload status styling */
+        #uploadStatus { margin-top: 10px; padding: 5px; border-radius: 4px; }
+        #uploadStatus .success-message { color: #34A853; font-weight: bold; }
+        #uploadStatus .error-message { color: #EA4335; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>VAST Configuration Advisor</h1>
+
+        <div class="input-section">
+            <h2>Configuration Goals</h2>
+            <div>
+                <label for="percentRU">Desired Rack Unit Utilization (%):</label>
+                <input type="number" id="percentRU" value="80" min="10" max="100" step="1"> % (of 42U VAST space)
+            </div>
+            <div>
+                <label for="percentPower">Desired Max Power Consumption (%):</label>
+                <input type="number" id="percentPower" value="70" min="10" max="90" step="1"> % (of 28.50 kW max, capped at 90%)
+            </div>
+            <button id="calculateButton">Calculate Optimal Configurations</button>
+        </div>
+
+        <div class="input-section">
+            <h2>Custom Graphics</h2>
+            <p>Upload custom graphics to enhance the visualization of VAST configurations.</p>
+            <form id="imageUploadForm" enctype="multipart/form-data">
+                <div>
+                    <label for="componentType">Component Type:</label>
+                    <select id="componentType" name="componentType">
+                        <option value="c-box">C-Box</option>
+                        <option value="d-box">D-Box</option>
+                        <option value="switch">Switch</option>
+                        <option value="rack">Rack Background</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="imageFile">Select Image:</label>
+                    <input type="file" id="imageFile" name="image" accept="image/*">
+                </div>
+                <button type="submit" id="uploadButton">Upload Image</button>
+            </form>
+            <div id="uploadStatus" style="margin-top: 10px;"></div>
+        </div>
+
+        <div class="results-section" id="results">
+            <h2>Results</h2>
+            <p>Enter percentages above and click calculate.</p>
+            <!-- Results will be injected here -->
+        </div>
+
+        <div class="footer-note">
+            <p><strong>Note on Throughput:</strong> S3 performance may differ from NFSv3 primarily due to protocol overhead. S3 typically operates over HTTP/S, which involves more layers and processing than NFS's more direct network file protocol, especially impacting latency-sensitive operations and metadata handling.</p>
+             <p><strong>Note on Ratios:</strong> All configurations require a minimum C-Box count of at least half the D-Box count (N_C >= N_D / 2).</p>
+       </div>
+    </div>
+
+    <script>
+        const calculateButton = document.getElementById('calculateButton');
+        const resultsDiv = document.getElementById('results');
+
+        function formatResultBlock(title, configData) {
+            let content;
+            if (configData.metrics?.error) {
+                content = `<span class="error-message">${configData.metrics.error}</span>`;
+            } else if (!configData || configData.nc === 0) {
+                 content = `<span class="error-message">No valid configuration data available.</span>`;
+            }
+            else {
+                const metrics = configData.metrics;
+                content = `
+C-Boxes: ${configData.nc}
+D-Boxes: ${configData.nd}
+--------------------
+Capacity: ${metrics.capacity_tb} TB Usable
+NFS R/W:  ${metrics.nfs_read_gbps} / ${metrics.nfs_write_gbps} GB/s
+S3 R/W:   ${metrics.s3_read_gbps} / ${metrics.s3_write_gbps} GB/s
+--------------------
+Actual RU: ${metrics.total_ru} / 42 U (${(metrics.total_ru / 42 * 100).toFixed(0)}%)
+Actual kW: ${metrics.total_kw} / 28.50 kW (${(metrics.total_kw / 28.50 * 100).toFixed(0)}%)
+                `.trim();
+            }
+
+            // Create visualization HTML for rack units
+            let vizHtml = '';
+            if (!configData.metrics?.error && configData && configData.nc > 0) {
+                // Create rack visualization
+                vizHtml = `
+                    <div class="rack-container">
+                        <!-- Fixed switches at the top (4U) -->
+                        ${Array(4).fill().map((_, i) => 
+                            `<div class="rack-unit switch" style="top: ${i * 9}px;"><div class="box-label">SW</div></div>`
+                        ).join('')}
+                        
+                        <!-- C-Boxes -->
+                        ${Array(configData.nc).fill().map((_, i) => 
+                            `<div class="rack-unit c-box" style="top: ${(i + 4) * 9}px;"><div class="box-label">C</div></div>`
+                        ).join('')}
+                        
+                        <!-- D-Boxes -->
+                        ${Array(configData.nd).fill().map((_, i) => 
+                            `<div class="rack-unit d-box" style="top: ${(i + configData.nc + 4) * 9}px;"><div class="box-label">D</div></div>`
+                        ).join('')}
+                    </div>
+                    <div class="rack-legend">
+                        <div class="legend-item"><div class="legend-color switch"></div>Switch</div>
+                        <div class="legend-item"><div class="legend-color c-box"></div>C-Box</div>
+                        <div class="legend-item"><div class="legend-color d-box"></div>D-Box</div>
+                    </div>
+                `;
+            } else {
+                vizHtml = `<div class="error-message">No visualization available</div>`;
+            }
+
+            return `
+                <div class="result-block">
+                    <h3>${title}</h3>
+                    <div class="result-content">
+                        <div class="result-text">
+                            <pre>${content}</pre>
+                        </div>
+                        <div class="visualization">
+                            ${vizHtml}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function calculateAndDisplay() {
+            const percentRU = parseFloat(document.getElementById('percentRU').value) || 80;
+            const percentPower = parseFloat(document.getElementById('percentPower').value) || 70;
+
+            // Disable button and show loading state
+            calculateButton.disabled = true;
+            resultsDiv.innerHTML = '<h2>Results</h2><p>Calculating...</p>';
+
+            try {
+                const response = await fetch('/calculate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ percentRU, percentPower }),
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const results = await response.json();
+
+                if (results.error) {
+                     resultsDiv.innerHTML = `<h2>Results</h2><p class="error-message">Error from server: ${results.error}</p>`;
+                     return;
+                }
+
+
+                let outputHTML = `<h2>Results (Target: <=${percentRU}% RU, <=${percentPower}% Power)</h2>`;
+                outputHTML += formatResultBlock("Max Capacity Configuration", results.maxCapa);
+                outputHTML += formatResultBlock("Max NFS Read Configuration", results.maxNfsRead);
+                outputHTML += formatResultBlock("Max NFS Write Configuration", results.maxNfsWrite);
+                outputHTML += formatResultBlock("Max S3 Read Configuration", results.maxS3Read);
+                outputHTML += formatResultBlock("Max S3 Write Configuration", results.maxS3Write);
+
+                resultsDiv.innerHTML = outputHTML;
+
+            } catch (error) {
+                console.error('Error fetching or processing calculation:', error);
+                resultsDiv.innerHTML = `<h2>Results</h2><p class="error-message">An error occurred: ${error.message}. Check console for details.</p>`;
+            } finally {
+                // Re-enable button
+                calculateButton.disabled = false;
+            }
+        }
+
+        calculateButton.addEventListener('click', calculateAndDisplay);
+
+        // Handle image uploads
+        const imageUploadForm = document.getElementById('imageUploadForm');
+        const uploadStatus = document.getElementById('uploadStatus');
+        const componentTypeSelect = document.getElementById('componentType');
+        
+        // Store uploaded image URLs by component type
+        const customImages = {
+            'c-box': null,
+            'd-box': null,
+            'switch': null,
+            'rack': null
+        };
+
+        imageUploadForm.addEventListener('submit', async function(event) {
+            event.preventDefault();
+            
+            const fileInput = document.getElementById('imageFile');
+            const componentType = componentTypeSelect.value;
+            
+            if (!fileInput.files.length) {
+                uploadStatus.innerHTML = '<span class="error-message">Please select an image file</span>';
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('image', fileInput.files[0]);
+            formData.append('componentType', componentType);
+            
+            uploadStatus.innerHTML = '<p>Uploading...</p>';
+            
+            try {
+                const response = await fetch('/upload-image', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Store the image URL for the selected component type
+                    customImages[componentType] = result.image_url;
+                    uploadStatus.innerHTML = `<p style="color: green;">Image uploaded successfully for ${componentType}!</p>`;
+                    
+                    // Update visualizations if results are already displayed
+                    updateVisualizations();
+                } else {
+                    uploadStatus.innerHTML = `<span class="error-message">${result.error || 'Upload failed'}</span>`;
+                }
+            } catch (error) {
+                console.error('Error uploading image:', error);
+                uploadStatus.innerHTML = `<span class="error-message">Error: ${error.message}</span>`;
+            }
+        });
+        
+        // Function to update visualizations with custom images
+        function updateVisualizations() {
+            // Find all visualization containers
+            const visualizations = document.querySelectorAll('.visualization');
+            
+            visualizations.forEach(viz => {
+                // Apply custom images to elements if they exist
+                if (customImages['c-box']) {
+                    const cBoxes = viz.querySelectorAll('.c-box');
+                    cBoxes.forEach(box => {
+                        box.style.backgroundImage = `url(${customImages['c-box']})`;
+                        box.style.backgroundSize = 'cover';
+                    });
+                }
+                
+                if (customImages['d-box']) {
+                    const dBoxes = viz.querySelectorAll('.d-box');
+                    dBoxes.forEach(box => {
+                        box.style.backgroundImage = `url(${customImages['d-box']})`;
+                        box.style.backgroundSize = 'cover';
+                    });
+                }
+                
+                if (customImages['switch']) {
+                    const switches = viz.querySelectorAll('.switch');
+                    switches.forEach(sw => {
+                        sw.style.backgroundImage = `url(${customImages['switch']})`;
+                        sw.style.backgroundSize = 'cover';
+                    });
+                }
+                
+                if (customImages['rack']) {
+                    const rackContainer = viz.querySelector('.rack-container');
+                    if (rackContainer) {
+                        rackContainer.style.backgroundImage = `url(${customImages['rack']})`;
+                        rackContainer.style.backgroundSize = 'cover';
+                    }
+                }
+            });
+        }
+
+        // Optional: Initial calculation on load
+        // window.addEventListener('load', calculateAndDisplay);
+
+    </script>
+</body>
+</html>

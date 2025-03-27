@@ -43,6 +43,25 @@
             color: #18a3d1;
             font-size: 1.2em;
             margin-top: 0;
+            margin-bottom: 25px;
+        }
+        .intro-text {
+            color: #0f2042;
+            font-size: 1.1em;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto 20px auto;
+        }
+        .logo-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 20px auto;
+            max-width: 700px;
+        }
+        .logo {
+            height: 60px;
+            margin: 0 20px;
         }
         
         /* Section styles */
@@ -286,8 +305,15 @@
 <body>
     <div class="container">
         <div class="header">
+            <div class="logo-container">
+                <img src="/static/images/avar-logo.svg" alt="A-VAR Logo" class="logo">
+                <img src="/static/images/vast-logo.svg" alt="VAST Data Logo" class="logo">
+            </div>
             <h1>VAST Configuration Advisor</h1>
             <p class="subtitle">Optimize your storage system configuration based on rack space and power constraints</p>
+            <p class="intro-text">
+                A-VAR is proud to present the VAST Data Configuration Optimizer, a powerful tool designed to help you find the perfect VAST Data storage solution for your needs. VAST Data is revolutionizing the data storage landscape for the AI era with their innovative all-flash storage architecture that delivers unprecedented performance, scalability, and efficiency for modern data-intensive workloads.
+            </p>
         </div>
         
         <div class="instructions">

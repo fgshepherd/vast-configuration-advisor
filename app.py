@@ -1,9 +1,5 @@
-from flask import Flask, request, jsonify, render_template, url_for, send_from_directory
+from flask import Flask, request, jsonify, render_template
 import math
-import os
-
-# Define constants for paths and directories
-STATIC_IMAGES_DIR = 'static/images'
 
 # Initialize Flask application with static folder configuration
 app = Flask(__name__, static_url_path='/static', static_folder='static')
@@ -225,29 +221,8 @@ def handle_calculate():
 # --- Frontend Routes ---
 @app.route('/')
 def index():
+    """Render the main application page"""
     return render_template('index.html')
-
-@app.route('/upload-image', methods=['POST'])
-def upload_image():
-    """Handle image uploads for VAST configuration visualizations"""
-    if 'image' not in request.files:
-        return jsonify({'error': 'No image part in the request'}), 400
-    
-    file = request.files['image']
-    if file.filename == '':
-        return jsonify({'error': 'No image selected for uploading'}), 400
-    
-    # Check if the static/images directory exists, create if not
-    if not os.path.exists(STATIC_IMAGES_DIR):
-        os.makedirs(STATIC_IMAGES_DIR)
-    
-    # Save the uploaded file
-    image_path = os.path.join(STATIC_IMAGES_DIR, file.filename)
-    file.save(image_path)
-    
-    # Return the URL for the saved image
-    image_url = url_for('static', filename=f'images/{file.filename}')
-    return jsonify({'success': True, 'image_url': image_url})
 
 # --- Run for Development ---
 if __name__ == '__main__':

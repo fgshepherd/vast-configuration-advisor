@@ -261,34 +261,7 @@
             box-shadow: 0 1px 2px rgba(0,0,0,0.2);
         }
         
-        /* Upload section styling */
-        .upload-section {
-            background-color: #f5f7fa;
-            padding: 20px;
-            border-radius: 8px;
-            margin-top: 20px;
-        }
-        #uploadStatus { 
-            margin-top: 15px; 
-            padding: 10px; 
-            border-radius: 5px; 
-        }
-        #uploadStatus .success-message { 
-            color: #27ae60; 
-            font-weight: bold; 
-            background-color: #e8f8f5;
-            padding: 10px;
-            border-radius: 5px;
-            display: block;
-        }
-        #uploadStatus .error-message { 
-            color: #e74c3c; 
-            font-weight: bold; 
-            background-color: #fdedec;
-            padding: 10px;
-            border-radius: 5px;
-            display: block;
-        }
+
         
         /* Footer styling */
         .footer-note { 
@@ -334,27 +307,7 @@
             <button id="calculateButton">Calculate Optimal Configurations</button>
         </div>
 
-        <div class="input-section upload-section">
-            <h2>Custom Graphics</h2>
-            <p>Upload custom graphics to enhance the visualization of VAST configurations. These images will be applied to the rack layout visualization.</p>
-            <form id="imageUploadForm" enctype="multipart/form-data">
-                <div class="form-group">
-                    <label for="componentType">Component Type:</label>
-                    <select id="componentType" name="componentType">
-                        <option value="c-box">C-Box (Compute Node)</option>
-                        <option value="d-box">D-Box (Storage Node)</option>
-                        <option value="switch">Network Switch</option>
-                        <option value="rack">Rack Background</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="imageFile">Select Image:</label>
-                    <input type="file" id="imageFile" name="image" accept="image/*">
-                </div>
-                <button type="submit" id="uploadButton">Upload Image</button>
-            </form>
-            <div id="uploadStatus"></div>
-        </div>
+
 
         <div class="results-section" id="results">
             <h2>Results</h2>
@@ -369,8 +322,16 @@
     </div>
 
     <script>
+        // Get the calculate button and results container
         const calculateButton = document.getElementById('calculateButton');
         const resultsDiv = document.getElementById('results');
+        
+        // Make sure the button is properly initialized
+        if (!calculateButton) {
+            console.error('Calculate button not found!');
+        } else {
+            console.log('Calculate button initialized');
+        }
 
         function formatResultBlock(title, configData) {
             // Configuration descriptions
@@ -504,104 +465,7 @@ Actual kW: ${metrics.total_kw} / 28.50 kW (${(metrics.total_kw / 28.50 * 100).to
 
         calculateButton.addEventListener('click', calculateAndDisplay);
 
-        // Handle image uploads
-        const imageUploadForm = document.getElementById('imageUploadForm');
-        const uploadStatus = document.getElementById('uploadStatus');
-        const componentTypeSelect = document.getElementById('componentType');
-        
-        // Store uploaded image URLs by component type
-        const customImages = {
-            'c-box': null,
-            'd-box': null,
-            'switch': null,
-            'rack': null
-        };
 
-        imageUploadForm.addEventListener('submit', async function(event) {
-            event.preventDefault();
-            
-            const fileInput = document.getElementById('imageFile');
-            const componentType = componentTypeSelect.value;
-            
-            if (!fileInput.files.length) {
-                uploadStatus.innerHTML = '<span class="error-message">Please select an image file</span>';
-                return;
-            }
-            
-            const formData = new FormData();
-            formData.append('image', fileInput.files[0]);
-            formData.append('componentType', componentType);
-            
-            uploadStatus.innerHTML = '<p>Uploading...</p>';
-            
-            try {
-                const response = await fetch('/upload-image', {
-                    method: 'POST',
-                    body: formData
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    // Store the image URL for the selected component type
-                    customImages[componentType] = result.image_url;
-                    uploadStatus.innerHTML = `<p style="color: green;">Image uploaded successfully for ${componentType}!</p>`;
-                    
-                    // Update visualizations if results are already displayed
-                    updateVisualizations();
-                } else {
-                    uploadStatus.innerHTML = `<span class="error-message">${result.error || 'Upload failed'}</span>`;
-                }
-            } catch (error) {
-                console.error('Error uploading image:', error);
-                uploadStatus.innerHTML = `<span class="error-message">Error: ${error.message}</span>`;
-            }
-        });
-        
-        // Function to update visualizations with custom images
-        function updateVisualizations() {
-            // Find all visualization containers
-            const visualizations = document.querySelectorAll('.visualization');
-            
-            visualizations.forEach(viz => {
-                // Apply custom images to elements if they exist
-                if (customImages['c-box']) {
-                    const cBoxes = viz.querySelectorAll('.c-box');
-                    cBoxes.forEach(box => {
-                        box.style.backgroundImage = `url(${customImages['c-box']})`;
-                        box.style.backgroundSize = 'cover';
-                    });
-                }
-                
-                if (customImages['d-box']) {
-                    const dBoxes = viz.querySelectorAll('.d-box');
-                    dBoxes.forEach(box => {
-                        box.style.backgroundImage = `url(${customImages['d-box']})`;
-                        box.style.backgroundSize = 'cover';
-                    });
-                }
-                
-                if (customImages['switch']) {
-                    const switches = viz.querySelectorAll('.switch');
-                    switches.forEach(sw => {
-                        sw.style.backgroundImage = `url(${customImages['switch']})`;
-                        sw.style.backgroundSize = 'cover';
-                    });
-                }
-                
-                if (customImages['rack']) {
-                    const rackContainer = viz.querySelector('.rack-container');
-                    if (rackContainer) {
-                        rackContainer.style.backgroundImage = `url(${customImages['rack']})`;
-                        rackContainer.style.backgroundSize = 'cover';
-                    }
-                }
-            });
-        }
 
         // Optional: Initial calculation on load
         // window.addEventListener('load', calculateAndDisplay);

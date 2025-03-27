@@ -1,0 +1,18 @@
+name: vast-configuration-advisor
+region: nyc
+services:
+  - name: vast-config-advisor-service
+    github:
+      repo: fgshepherd/vast-configuration-advisor
+      branch: main
+    build_command: pip install -r requirements.txt
+    run_command: gunicorn --bind 0.0.0.0:8080 app:app
+    http_port: 8080
+    instance_size_slug: basic-xs
+    routes:
+      - path: /
+    envs:
+      - key: FLASK_ENV
+        value: production
+      - key: PORT
+        value: "8080"

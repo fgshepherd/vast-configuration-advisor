@@ -226,7 +226,10 @@ def index():
 
 # --- Run for Development ---
 if __name__ == '__main__':
-    # Using port 5060 to avoid conflicts with other services
+    # For local development, use port 5060
+    # For production deployment on DigitalOcean, use port 8080 (set in Dockerfile and .do/app.yaml)
     # Note: Never use port 5000 as it conflicts with macOS AirPlay
-    # Previous port 5050 was also in use, so we're switching to 5060
-    app.run(host='0.0.0.0', port=5060, debug=True)
+    import os
+    port = int(os.environ.get('PORT', 5060))
+    debug = os.environ.get('FLASK_ENV', 'development') == 'development'
+    app.run(host='0.0.0.0', port=port, debug=debug)

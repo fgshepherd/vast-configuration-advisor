@@ -13,13 +13,12 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the application code to the working directory
 COPY . .
 
-# Make port 5060 available to the world outside this container
-# Note: DigitalOcean App Platform typically expects apps to listen on 8080 by default,
-# but we're using 5060 to avoid conflicts with port 5000 and 5050 as per our project standards
-EXPOSE 5060
+# Make port 8080 available to the world outside this container
+# Note: DigitalOcean App Platform expects apps to listen on 8080 by default
+EXPOSE 8080
 
 # Define environment variables (optional, can be set in DO)
 # ENV FLASK_ENV=production
 
 # Run app.py when the container launches using Gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:5060", "app:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8080", "app:app"]

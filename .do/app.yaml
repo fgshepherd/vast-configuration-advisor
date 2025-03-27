@@ -6,7 +6,7 @@ services:
       repo: fgshepherd/vast-configuration-advisor
       branch: main
     build_command: pip install -r requirements.txt
-    run_command: gunicorn --bind 0.0.0.0:8080 app:app
+    run_command: gunicorn --workers=2 --bind=0.0.0.0:8080 --chdir=/app app:app
     http_port: 8080
     instance_size_slug: basic-xs
     routes:

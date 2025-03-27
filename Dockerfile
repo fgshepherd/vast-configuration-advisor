@@ -21,4 +21,4 @@ EXPOSE 8080
 # ENV FLASK_ENV=production
 
 # Run app.py when the container launches using Gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:8080", "app:app"]
+CMD ["gunicorn", "--workers=2", "--bind=0.0.0.0:8080", "--chdir=/app", "app:app"]

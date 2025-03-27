@@ -20,5 +20,5 @@ EXPOSE 8080
 # Define environment variables (optional, can be set in DO)
 # ENV FLASK_ENV=production
 
-# Run app.py when the container launches using Gunicorn
-CMD ["gunicorn", "--workers=2", "--bind=0.0.0.0:8080", "--chdir=/app", "app:app"]
+# Run the application using Gunicorn with wsgi.py
+CMD ["gunicorn", "--log-file=-", "--workers=2", "--bind=0.0.0.0:8080", "wsgi:app"]

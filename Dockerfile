@@ -17,8 +17,12 @@ COPY . .
 # Note: DigitalOcean App Platform expects apps to listen on 8080 by default
 EXPOSE 8080
 
-# Define environment variables (optional, can be set in DO)
-# ENV FLASK_ENV=production
+# Define environment variables for the application
+ENV FLASK_ENV=production
+ENV PORT=8080
+ENV PYTHONUNBUFFERED=1
 
 # Run the application using Gunicorn with wsgi.py
-CMD ["gunicorn", "--log-file=-", "--workers=2", "--bind=0.0.0.0:8080", "wsgi:app"]
+# Using the worker-tmp-dir parameter to fix the Docker temp directory issue
+# Using wsgi:application to match our current configuration
+CMD ["gunicorn", "--worker-tmp-dir", "/dev/shm", "--log-file=-", "--workers=2", "--bind=0.0.0.0:8080", "wsgi:application"]

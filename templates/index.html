@@ -60,7 +60,19 @@
             max-width: 800px;
             margin: 0 auto 20px auto;
         }
-        /* Removed logo styles */
+        /* Logo styles */
+        .logo-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            margin-bottom: 20px;
+        }
+        .company-logo, .vast-logo {
+            height: 60px;
+            max-width: 200px;
+            object-fit: contain;
+        }
         
         /* Section styles */
         .section {
@@ -308,7 +320,13 @@
 <body>
     <div class="container">
         <div class="header">
-            <!-- Logos removed as requested -->
+            <!-- Logo section for PNG logos -->
+            <div class="logo-container">
+                <!-- Company logo - place your PNG file at static/images/company-logo.png -->
+                <img src="{{ url_for('static', filename='images/company-logo.png') }}" alt="Company Logo" class="company-logo">
+                <!-- VAST logo - place your PNG file at static/images/vast-logo.png -->
+                <img src="{{ url_for('static', filename='images/vast-logo.png') }}" alt="VAST Logo" class="vast-logo">
+            </div>
             <h1>VAST Configuration Advisor</h1>
             <p class="subtitle">Optimize your storage system configuration based on rack space and power constraints</p>
             <p class="intro-text">

@@ -42,12 +42,11 @@ venv.bak/
 *.swo
 .DS_Store
 
-# Uploaded images
-# Allow logo files but ignore other uploaded images
-static/images/*
-!static/images/.gitkeep
-!static/images/avar-logo.svg
-!static/images/vast-logo.svg
+# Images
+# Track all files in the static/images directory
+# static/images/*
+# !static/images/.gitkeep
+
 
 # Logs
 *.log

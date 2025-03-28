@@ -68,7 +68,8 @@
             gap: 30px;
             margin-bottom: 20px;
         }
-        .company-logo, .vast-logo {
+        /* Updated class name from company-logo to avar-logo */
+        .avar-logo, .vast-logo {
             height: 60px;
             max-width: 200px;
             object-fit: contain;
@@ -322,8 +323,8 @@
         <div class="header">
             <!-- Logo section for PNG logos -->
             <div class="logo-container">
-                <!-- Company logo - place your PNG file at static/images/company-logo.png -->
-                <img src="{{ url_for('static', filename='images/company-logo.png') }}" alt="Company Logo" class="company-logo">
+                <!-- A-VAR logo - using avar-logo.png file -->
+                <img src="{{ url_for('static', filename='images/avar-logo.png') }}" alt="A-VAR Logo" class="avar-logo">
                 <!-- VAST logo - place your PNG file at static/images/vast-logo.png -->
                 <img src="{{ url_for('static', filename='images/vast-logo.png') }}" alt="VAST Logo" class="vast-logo">
             </div>

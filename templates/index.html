@@ -3,8 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>VAST Config Advisor</title>
-    <style>
+    <!-- Add Chart.js library for visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- New stylesheet with VAST brand colors -->
+    <style id="vast-brand-colors-v1">
         /* Import Moderat font */
         @import url('https://fonts.cdnfonts.com/css/moderat');
         
@@ -14,13 +20,13 @@
             line-height: 1.6; 
             margin: 0; 
             padding: 0; 
-            background-color: #ffffff; 
-            color: #0f2042; 
+            background-color: #FFFFFF !important; /* Pure White */
+            color: #0F2042 !important; /* Deep Blue / Dark */
         }
         .container { 
             max-width: 1000px; 
             margin: 30px auto; 
-            background-color: #ffffff; 
+            background-color: #FFFFFF; /* Pure White */
             padding: 30px; 
             border-radius: 10px; 
             box-shadow: 0 5px 15px rgba(15, 32, 66, 0.1); 
@@ -31,22 +37,22 @@
             text-align: center;
             margin-bottom: 30px;
             padding-bottom: 20px;
-            border-bottom: 1px solid #1fd9fe;
+            border-bottom: 1px solid #1FD9FE; /* VAST Blue / Primary */
         }
         h1 {
-            color: #081636;
+            color: #081636; /* Deep Blue / Darker */
             font-size: 2.5em;
             margin-bottom: 10px;
             font-weight: normal;
         }
         .subtitle {
-            color: #18a3d1;
+            color: #18A3D1; /* VAST Blue / Darker */
             font-size: 1.2em;
             margin-top: 0;
             margin-bottom: 25px;
         }
         .intro-text {
-            color: #0f2042;
+            color: #0F2042; /* Deep Blue / Dark */
             font-size: 1.1em;
             line-height: 1.6;
             max-width: 800px;
@@ -59,7 +65,7 @@
             margin-bottom: 30px;
             padding: 20px;
             border-radius: 8px;
-            background-color: #ffffff;
+            background-color: #FFFFFF; /* Pure White */
             box-shadow: 0 2px 10px rgba(15, 32, 66, 0.05);
         }
         .input-section, .results-section { 
@@ -67,15 +73,15 @@
             padding: 25px; 
             border: none; 
             border-radius: 8px; 
-            background-color: #ffffff;
+            background-color: #FFFFFF; /* Pure White */
             box-shadow: 0 2px 10px rgba(15, 32, 66, 0.05);
         }
         .instructions {
-            background-color: rgba(31, 217, 254, 0.1);
+            background-color: #D7F8FF; /* VAST Blue / Lightest */
             padding: 20px;
             border-radius: 8px;
             margin-bottom: 30px;
-            border-left: 4px solid #1fd9fe;
+            border-left: 4px solid #1FD9FE; /* VAST Blue / Primary */
         }
         .instructions ul {
             margin-top: 10px;
@@ -87,15 +93,15 @@
         
         /* Headings */
         h2 { 
-            color: #18a3d1; 
+            color: #18A3D1; /* VAST Blue / Darker */
             margin-top: 0; 
-            border-bottom: 2px solid #1fd9fe; 
+            border-bottom: 2px solid #1FD9FE; /* VAST Blue / Primary */
             padding-bottom: 10px;
             font-size: 1.6em;
             font-weight: normal;
         }
         h3 { 
-            color: #081636; 
+            color: #081636; /* Deep Blue / Darker */
             margin-bottom: 15px; 
             font-size: 1.3em;
             font-weight: normal;
@@ -110,13 +116,13 @@
             width: 250px; 
             margin-bottom: 8px; 
             font-weight: 600; 
-            color: #0f2042;
+            color: #0F2042; /* Deep Blue / Dark */
         }
         input[type="number"] { 
             width: 80px; 
             margin-bottom: 15px; 
             padding: 10px; 
-            border: 1px solid #1fd9fe; 
+            border: 1px solid #1FD9FE; /* VAST Blue / Primary */
             border-radius: 5px;
             font-size: 1em;
         }
@@ -125,13 +131,13 @@
         }
         select {
             padding: 10px;
-            border: 1px solid #1fd9fe;
+            border: 1px solid #1FD9FE; /* VAST Blue / Primary */
             border-radius: 5px;
             font-size: 1em;
-            background-color: #ffffff;
+            background-color: #FFFFFF; /* Pure White */
         }
         button { 
-            background-color: #06d69f; 
+            background-color: #06D69F; /* Vivid Green / Primary */
             color: white; 
             padding: 12px 20px; 
             border: none; 
@@ -143,10 +149,10 @@
             transition: background-color 0.3s;
         }
         button:hover { 
-            background-color: #05b587; 
+            background-color: #049A72; /* Vivid Green Darker */
         }
         button:disabled {
-            background-color: #18a3d1;
+            background-color: #18A3D1; /* VAST Blue / Darker */
             opacity: 0.5;
             cursor: not-allowed;
         }
@@ -156,7 +162,7 @@
             margin-top: 20px; 
             padding: 20px; 
             border: none; 
-            background-color: rgba(31, 217, 254, 0.03); 
+            background-color: #F2F2F7; /* Cool White */
             border-radius: 8px; 
             box-shadow: 0 2px 5px rgba(15, 32, 66, 0.05);
             transition: transform 0.2s;
@@ -166,29 +172,29 @@
             box-shadow: 0 4px 8px rgba(15, 32, 66, 0.1);
         }
         .config-description {
-            background-color: rgba(6, 214, 159, 0.1);
+            background-color: #BFF8E9; /* Vivid Green / Lightest */
             padding: 10px 15px;
             border-radius: 5px;
             margin-bottom: 15px;
             font-size: 0.95em;
-            border-left: 3px solid #06d69f;
+            border-left: 3px solid #06D69F; /* Vivid Green / Primary */
         }
         pre { 
             white-space: pre-wrap; 
             word-wrap: break-word; 
-            background-color: rgba(31, 217, 254, 0.05); 
+            background-color: #D7F8FF; /* VAST Blue / Lightest */
             padding: 15px; 
-            border: 1px solid #1fd9fe; 
+            border: 1px solid #1FD9FE; /* VAST Blue / Primary */
             border-radius: 5px; 
             font-family: 'Moderat', sans-serif; 
             font-size: 0.95em; 
             line-height: 1.5;
         }
         .error-message { 
-            color: #ffbc42; 
+            color: #FF4264; /* Bright Red / Primary */
             font-weight: normal; 
             padding: 10px;
-            background-color: rgba(255, 188, 66, 0.1);
+            background-color: #FBD8DF; /* Bright Red / Lightest */
             border-radius: 5px;
         }
         
@@ -208,8 +214,8 @@
             flex: 1; 
             min-width: 300px; 
             min-height: 200px; 
-            background-color: rgba(31, 217, 254, 0.03); 
-            border: 1px solid #1fd9fe; 
+            background-color: #D7F8FF; /* VAST Blue / Lightest */ 
+            border: 1px solid #1FD9FE; /* VAST Blue / Primary */ 
             border-radius: 8px; 
             padding: 15px; 
             display: flex; 
@@ -220,8 +226,8 @@
             position: relative; 
             width: 180px; 
             height: 400px; 
-            border: 2px solid #0f2042; 
-            background-color: rgba(31, 217, 254, 0.1); 
+            border: 2px solid #0F2042; /* Deep Blue / Dark */ 
+            background-color: #F2F2F7; /* Cool White */ 
             background-size: cover; 
             background-position: center; 
             border-radius: 5px;
@@ -232,32 +238,32 @@
             width: 160px; 
             height: 8px; 
             left: 10px; 
-            background-color: rgba(24, 163, 209, 0.2); 
+            background-color: #D7F8FF; /* VAST Blue / Lightest */ 
             background-size: cover; 
             background-position: center; 
             border-radius: 2px;
         }
         .c-box { 
-            background-color: #18a3d1; 
-            border: 1px solid #0f2042; 
+            background-color: #06D69F; /* Vivid Green / Primary */ 
+            border: 1px solid #0F2042; /* Deep Blue / Dark */ 
             box-shadow: 0 1px 3px rgba(15, 32, 66, 0.2);
         }
         .d-box { 
-            background-color: #06d69f; 
-            border: 1px solid #0f2042; 
+            background-color: #FFBC42; /* Warm Yellow / Primary */ 
+            border: 1px solid #0F2042; /* Deep Blue / Dark */ 
             box-shadow: 0 1px 3px rgba(15, 32, 66, 0.2);
         }
         .switch { 
-            background-color: #ffbc42; 
-            border: 1px solid #0f2042; 
+            background-color: #1FD9FE; /* VAST Blue / Primary */ 
+            border: 1px solid #0F2042; /* Deep Blue / Dark */ 
             box-shadow: 0 1px 3px rgba(15, 32, 66, 0.2);
         }
         .box-label { 
             font-size: 10px; 
-            color: #ffffff; 
+            color: #0E142C; /* Deep Blue / Darkest */ 
             text-align: center; 
             line-height: 8px; 
-            text-shadow: 1px 1px 1px rgba(8, 22, 54, 0.5); 
+            text-shadow: none; 
             font-weight: bold;
         }
         .rack-legend { 
@@ -266,6 +272,9 @@
             margin-top: 15px; 
             font-size: 12px; 
             justify-content: center;
+            padding: 5px;
+            background-color: #FAF7F7; /* Warm White */
+            border-radius: 5px;
         }
         .legend-item { 
             display: flex; 
@@ -320,7 +329,7 @@
             <h2>Configuration Goals</h2>
             <div class="form-group">
                 <label for="percentRU">Desired Rack Unit Utilization (%):</label>
-                <input type="number" id="percentRU" value="80" min="10" max="100" step="1"> % (of 42U VAST space)
+                <input type="number" id="percentRU" value="80" min="10" max="100" step="1"> % (42U usable)
             </div>
             <div class="form-group">
                 <label for="percentPower">Desired Max Power Consumption (%):</label>
@@ -335,6 +344,13 @@
             <h2>Results</h2>
             <p>Enter percentages above and click calculate to see optimized configurations.</p>
             <!-- Results will be injected here -->
+        </div>
+
+        <!-- Add chart container for visualization -->
+        <div class="results-section" id="chart-container" style="margin-top: 30px; display: none;"> <!-- Initially hidden -->
+            <h2>Capacity vs. NFS Throughput (Optimal Configurations)</h2>
+            <canvas id="configChart"></canvas>
+            <p style="text-align: center; font-size: 0.9em;"><i>Each colored point represents an optimal configuration. Hover over points for details.</i></p>
         </div>
 
         <div class="footer-note">
@@ -375,6 +391,8 @@
                 const metrics = configData.metrics;
                 // Calculate licensable capacity (rounded down to nearest 100 TB)
                 const licensableCapacity = Math.floor(metrics.capacity_tb / 100) * 100;
+                // Get the speed-to-space ratio
+                const ratio = metrics.speed_to_space_ratio !== undefined ? metrics.speed_to_space_ratio.toFixed(3) : 'N/A';
                 
                 content = `
 C-Boxes: ${configData.nc}
@@ -383,8 +401,10 @@ D-Boxes: ${configData.nd}
 Capacity: ${metrics.capacity_tb} TB Usable
 Licensable: ${licensableCapacity} TB
 NFS R/W:  ${metrics.nfs_read_gbps} / ${metrics.nfs_write_gbps} GB/s
+Total NFS: ${metrics.total_nfs_gbps} GB/s
 S3 R/W:   ${metrics.s3_read_gbps} / ${metrics.s3_write_gbps} GB/s
 --------------------
+Speed/Space Ratio: ${ratio} (GB/s)/TB
 Actual RU: ${metrics.total_ru} / 42 U (${(metrics.total_ru / 42 * 100).toFixed(0)}%)
 Actual kW: ${metrics.total_kw} / 28.50 kW (${(metrics.total_kw / 28.50 * 100).toFixed(0)}%)
                 `.trim();
@@ -442,6 +462,9 @@ Actual kW: ${metrics.total_kw} / 28.50 kW (${(metrics.total_kw / 28.50 * 100).to
             `;
         }
 
+        // Variable to hold the chart instance
+        let myConfigChart = null;
+        
         async function calculateAndDisplay() {
             const percentRU = parseFloat(document.getElementById('percentRU').value) || 80;
             const percentPower = parseFloat(document.getElementById('percentPower').value) || 70;
@@ -449,6 +472,9 @@ Actual kW: ${metrics.total_kw} / 28.50 kW (${(metrics.total_kw / 28.50 * 100).to
             // Disable button and show loading state
             calculateButton.disabled = true;
             resultsDiv.innerHTML = '<h2>Results</h2><p>Calculating...</p>';
+            
+            // Hide chart container while calculating
+            document.getElementById('chart-container').style.display = 'none';
 
             try {
                 const response = await fetch('/calculate', {
@@ -469,16 +495,141 @@ Actual kW: ${metrics.total_kw} / 28.50 kW (${(metrics.total_kw / 28.50 * 100).to
                      resultsDiv.innerHTML = `<h2>Results</h2><p class="error-message">Error from server: ${results.error}</p>`;
                      return;
                 }
-
+                
+                // Extract the optimal configs from the response
+                const optimalConfigs = results.optimal;
 
                 let outputHTML = `<h2>Results (Target: <=${percentRU}% RU, <=${percentPower}% Power)</h2>`;
-                outputHTML += formatResultBlock("Max Capacity Configuration", results.maxCapa);
-                outputHTML += formatResultBlock("Max NFS Read Configuration", results.maxNfsRead);
-                outputHTML += formatResultBlock("Max NFS Write Configuration", results.maxNfsWrite);
-                outputHTML += formatResultBlock("Max S3 Read Configuration", results.maxS3Read);
-                outputHTML += formatResultBlock("Max S3 Write Configuration", results.maxS3Write);
+                outputHTML += formatResultBlock("Max Capacity Configuration", optimalConfigs.maxCapa);
+                outputHTML += formatResultBlock("Max NFS Read Configuration", optimalConfigs.maxNfsRead);
+                outputHTML += formatResultBlock("Max NFS Write Configuration", optimalConfigs.maxNfsWrite);
+                outputHTML += formatResultBlock("Max S3 Read Configuration", optimalConfigs.maxS3Read);
+                outputHTML += formatResultBlock("Max S3 Write Configuration", optimalConfigs.maxS3Write);
+                // Add the new Max Speed-to-Space Ratio configuration
+                outputHTML += formatResultBlock("Max Speed-to-Space Ratio Configuration", optimalConfigs.maxSpeedToSpace);
 
                 resultsDiv.innerHTML = outputHTML;
+                
+                // --- Add Chart Plotting Logic ---
+                const chartContainer = document.getElementById('chart-container');
+                const ctx = document.getElementById('configChart').getContext('2d');
+
+                // Destroy previous chart instance if it exists
+                if (myConfigChart instanceof Chart) {
+                    myConfigChart.destroy();
+                }
+
+                // Create datasets for optimal configurations only
+                const optimalDatasets = [];
+                
+                // Add optimal configurations as highlighted points
+                // Only include the 5 specific optimal configurations requested
+                // Use VAST brand colors for the chart points
+                const optimalPoints = [
+                    { 
+                        label: 'Max Capacity',
+                        config: optimalConfigs.maxCapa,
+                        color: '#06D69F' // Vivid Green / Primary
+                    },
+                    { 
+                        label: 'Max NFS Read',
+                        config: optimalConfigs.maxNfsRead,
+                        color: '#FF4264' // Bright Red / Primary
+                    },
+                    { 
+                        label: 'Max NFS Write',
+                        config: optimalConfigs.maxNfsWrite,
+                        color: '#FFBC42' // Warm Yellow / Primary
+                    },
+                    { 
+                        label: 'Max S3 Read',
+                        config: optimalConfigs.maxS3Read,
+                        color: '#1FD9FE' // VAST Blue / Primary
+                    },
+                    { 
+                        label: 'Max S3 Write',
+                        config: optimalConfigs.maxS3Write,
+                        color: '#18A3D1' // VAST Blue / Darker
+                    },
+                    { 
+                        label: 'Max Speed-to-Space',
+                        config: optimalConfigs.maxSpeedToSpace,
+                        color: '#B234E4' // Electric Violet
+                    }
+                ];
+                
+                // Add each optimal point as a separate dataset for better visibility
+                let hasValidConfigs = false;
+                optimalPoints.forEach(point => {
+                    if (point.config && point.config.nc > 0 && point.config.metrics) {
+                        hasValidConfigs = true;
+                        optimalDatasets.push({
+                            label: point.label,
+                            data: [{
+                                x: point.config.metrics.capacity_tb,
+                                y: point.config.metrics.total_nfs_gbps,
+                                nc: point.config.nc,
+                                nd: point.config.nd
+                            }],
+                            backgroundColor: point.color,
+                            pointRadius: 10,
+                            pointHoverRadius: 12
+                        });
+                    }
+                });
+                
+                // Only show chart if there are valid configurations
+                if (hasValidConfigs) {
+                    chartContainer.style.display = 'block'; // Show the chart container
+                    
+                    myConfigChart = new Chart(ctx, {
+                        type: 'scatter',
+                        data: {
+                            datasets: optimalDatasets
+                        },
+                        options: {
+                            scales: {
+                                x: {
+                                    type: 'linear',
+                                    position: 'bottom',
+                                    title: { display: true, text: 'Total Usable Capacity (TB)' }
+                                },
+                                y: {
+                                    title: { display: true, text: 'Total NFS Throughput (Read+Write, GB/s)' }
+                                }
+                            },
+                            plugins: {
+                                tooltip: {
+                                    callbacks: {
+                                        // Simplified tooltips as requested
+                                        label: function(context) {
+                                            const point = context.raw;
+                                            if (!point) return '';
+                                            return [
+                                                `${context.dataset.label}`,
+                                                `C:${point.nc} D:${point.nd}`
+                                            ];
+                                        }
+                                    }
+                                },
+                                // Add a legend to help identify the configurations
+                                legend: {
+                                    position: 'top',
+                                    labels: {
+                                        usePointStyle: true,
+                                        pointStyle: 'circle',
+                                        padding: 15
+                                    }
+                                }
+                            },
+                            responsive: true,
+                            maintainAspectRatio: true
+                        }
+                    });
+                } else {
+                     chartContainer.style.display = 'none'; // Hide chart container if no data
+                }
+                // --- End Chart Plotting Logic ---
 
             } catch (error) {
                 console.error('Error fetching or processing calculation:', error);

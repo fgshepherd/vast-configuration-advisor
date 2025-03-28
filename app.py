@@ -107,6 +107,10 @@ def calculate_metrics(nc, nd, current_total_ru, current_total_kw):
     nfs_read = min(nc * CBOX['nfsRead'], nd * DBOX['nfsRead'])
     s3_write = min(nc * CBOX['s3Write'], nd * DBOX['s3Write'])
     s3_read = min(nc * CBOX['s3Read'], nd * DBOX['s3Read'])
+    
+    # Calculate total NFS throughput and speed-to-space ratio
+    total_nfs_throughput = nfs_read + nfs_write
+    speed_to_space_ratio = (total_nfs_throughput / capacity) if capacity > 0 else 0
 
     return {
         'capacity_tb': round(capacity, 1),
@@ -114,6 +118,8 @@ def calculate_metrics(nc, nd, current_total_ru, current_total_kw):
         'nfs_write_gbps': round(nfs_write, 1),
         's3_read_gbps': round(s3_read, 1),
         's3_write_gbps': round(s3_write, 1),
+        'total_nfs_gbps': round(total_nfs_throughput, 1),  # Added total NFS throughput
+        'speed_to_space_ratio': round(speed_to_space_ratio, 3),  # Added speed-to-space ratio
         'total_ru': current_total_ru,
         'total_kw': round(current_total_kw, 2)
     }
@@ -136,6 +142,7 @@ def update_best_configs(best, nc, nd, metrics):
     nfs_write = metrics['nfs_write_gbps']
     s3_read = metrics['s3_read_gbps']
     s3_write = metrics['s3_write_gbps']
+    speed_to_space_ratio = metrics['speed_to_space_ratio']
     
     # Check and update each optimization target
     if capacity > best['maxCapa']['value']:
@@ -152,6 +159,10 @@ def update_best_configs(best, nc, nd, metrics):
         
     if s3_write > best['maxS3Write']['value']:
         best['maxS3Write'] = {'nc': nc, 'nd': nd, 'value': s3_write, 'metrics': metrics}
+    
+    # Add check for maxSpeedToSpace
+    if speed_to_space_ratio > best['maxSpeedToSpace']['value']:
+        best['maxSpeedToSpace'] = {'nc': nc, 'nd': nd, 'value': speed_to_space_ratio, 'metrics': metrics}
         
     return best
 
@@ -181,9 +192,13 @@ def calculate_optimal_configs(percent_ru, percent_power):
         'maxNfsRead': {'nc': 0, 'nd': 0, 'value': -1, 'metrics': {}},
         'maxNfsWrite': {'nc': 0, 'nd': 0, 'value': -1, 'metrics': {}},
         'maxS3Read': {'nc': 0, 'nd': 0, 'value': -1, 'metrics': {}},
-        'maxS3Write': {'nc': 0, 'nd': 0, 'value': -1, 'metrics': {}}
+        'maxS3Write': {'nc': 0, 'nd': 0, 'value': -1, 'metrics': {}},
+        'maxSpeedToSpace': {'nc': 0, 'nd': 0, 'value': -1, 'metrics': {}}  # Added maxSpeedToSpace optimization goal
     }
     feasible_count = 0
+    
+    # Initialize list to collect all feasible configurations for visualization
+    feasible_points = []
 
     # Loop through possible combinations
     for nc in range(2, MAX_SYSTEM_RU + 1):  # nc >= 2
@@ -202,6 +217,16 @@ def calculate_optimal_configs(percent_ru, percent_power):
             
             # Update best configurations if this one is better
             best = update_best_configs(best, nc, nd, metrics)
+            
+            # Append the current feasible point's data to the feasible_points list
+            feasible_points.append({
+                'nc': nc,
+                'nd': nd,
+                'capacity_tb': metrics['capacity_tb'],
+                'total_nfs_gbps': metrics['total_nfs_gbps'],
+                'speed_ratio': metrics['speed_to_space_ratio']
+                # Add other metrics if needed for tooltips later
+            })
 
     # Add feasibility check - if no config is found for a goal, mark it
     for key in best:
@@ -209,7 +234,12 @@ def calculate_optimal_configs(percent_ru, percent_power):
             best[key]['metrics']['error'] = "No valid configuration found meeting all constraints."
 
     app.logger.info(f"Calculation complete. Found {feasible_count} feasible configurations.")
-    return best
+    
+    # Return both the optimal configurations and the feasible points for visualization
+    return {
+        'optimal': best,
+        'feasible_points': feasible_points
+    }
 
 
 # --- API Route ---

@@ -1,8 +1,17 @@
 from flask import Flask, request, jsonify, render_template
 import math
+import os
 
 # Initialize Flask application with static folder configuration
-app = Flask(__name__, static_url_path='/static', static_folder='static')
+# Ensure static files are properly served in both development and production
+app = Flask(__name__, 
+           static_url_path='/static', 
+           static_folder='static',
+           template_folder='templates')
+
+# Set environment configuration
+app.config['ENV'] = os.environ.get('FLASK_ENV', 'production')
+app.config['DEBUG'] = os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
 
 # --- Constants ---
 FIXED_KW = 2.0
@@ -229,7 +238,6 @@ if __name__ == '__main__':
     # For local development, use port 5060
     # For production deployment on DigitalOcean, use port 8080 (set in Dockerfile and .do/app.yaml)
     # Note: Never use port 5000 as it conflicts with macOS AirPlay
-    import os
-    port = int(os.environ.get('PORT', 5060))
-    debug = os.environ.get('FLASK_ENV', 'development') == 'development'
-    app.run(host='0.0.0.0', port=port, debug=debug)
+    # Always listen on 0.0.0.0 to be accessible from outside the container
+    port = int(os.environ.get('PORT', 8080))  # Default to 8080 for DigitalOcean compatibility
+    app.run(host='0.0.0.0', port=port)

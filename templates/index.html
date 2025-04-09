@@ -106,6 +106,36 @@
             margin-bottom: 8px;
         }
         
+        /* Existing configuration note styling */
+        .existing-config-note {
+            background-color: #FFE8D4; /* Warm Orange / Lightest */
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border-left: 4px solid #FFBC42; /* Warm Yellow / Primary */
+        }
+        
+        .existing-config-note h3 {
+            color: #FF4264; /* Bright Red / Primary */
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-weight: normal;
+        }
+        
+        .existing-config-note p {
+            margin-bottom: 10px;
+        }
+        
+        .existing-config-note p:last-child {
+            margin-bottom: 0;
+        }
+        
+        .power-note {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px dashed #FFBC42;
+        }
+        
         /* Headings */
         h2 { 
             color: #18A3D1; /* VAST Blue / Darker */
@@ -133,6 +163,12 @@
             font-weight: 600; 
             color: #0F2042; /* Deep Blue / Dark */
         }
+        .help-text {
+            margin-left: 250px;
+            font-size: 0.9em;
+            color: #18A3D1; /* VAST Blue / Darker */
+            margin-top: 5px;
+        }
         input[type="number"] { 
             width: 80px; 
             margin-bottom: 15px; 
@@ -140,6 +176,18 @@
             border: 1px solid #1FD9FE; /* VAST Blue / Primary */
             border-radius: 5px;
             font-size: 1em;
+        }
+        .radio-options {
+            display: inline-block;
+        }
+        .radio-label {
+            display: block;
+            margin-bottom: 10px;
+            width: auto;
+            font-weight: normal;
+        }
+        input[type="radio"] {
+            margin-right: 8px;
         }
         input[type="file"] {
             padding: 10px 0;
@@ -339,22 +387,49 @@
             <h2>How to Use This Tool</h2>
             <p>This advisor helps you find the optimal VAST storage configuration based on your constraints:</p>
             <ul>
-                <li><strong>Step 1:</strong> Enter your desired rack unit utilization percentage (10-100%)</li>
-                <li><strong>Step 2:</strong> Enter your desired power consumption percentage (10-90%)</li>
-                <li><strong>Step 3:</strong> Click "Calculate Optimal Configurations" to see results</li>
+                <li><strong>Step 1:</strong> Enter the number of Rack Units Available in your environment</li>
+                <li><strong>Step 2:</strong> Select your power capacity option</li>
+                <li><strong>Step 3:</strong> Enter your desired rack unit utilization percentage (10-100%)</li>
+                <li><strong>Step 4:</strong> Enter your desired power consumption percentage (10-90%)</li>
+                <li><strong>Step 5:</strong> Click "Calculate Optimal Configurations" to see results</li>
             </ul>
-            <p>The tool will generate five optimized configurations, each prioritizing a different performance metric.</p>
+            <p>The tool will generate optimized configurations, each prioritizing a different performance metric.</p>
+        </div>
+
+        <!-- Add notes about existing VAST Cluster configuration -->
+        <div class="existing-config-note">
+            <h3>Existing Configuration Notes</h3>
+            <p>Current 2x2 VAST Cluster occupies 10U, TOR/Mgmt Switch Reserved Space occupies 10U, and there are 2 unused rack units at the very bottom of the cabinet. Translation: Max Rack Units for existing 2x2 VAST Cluster cabinet is 30 RU (52-22).</p>
+            <p class="power-note">The current 2x2 VAST Cluster cabinet is powered by two electrical circuits, providing a total of 14.25 kilowatts. If the system is expanded to a larger configuration, additional power circuits will need to be installed to meet the increased power demand.</p>
         </div>
 
         <div class="input-section">
             <h2>Configuration Goals</h2>
             <div class="form-group">
+                <label for="rackUnits">Rack Units Available:</label>
+                <input type="number" id="rackUnits" value="42" min="10" max="42" step="1"> U
+                <div class="help-text">Enter the total number of rack units available in your environment (maximum 42U)</div>
+            </div>
+            <div class="form-group">
+                <label>Power Capacity Option:</label>
+                <div class="radio-options">
+                    <label class="radio-label">
+                        <input type="radio" name="powerOption" id="powerOption1" value="28.50" checked>
+                        28.50 kW, capped at 90%
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="powerOption" id="powerOption2" value="14.25">
+                        14.25 kW, capped at 90%
+                    </label>
+                </div>
+            </div>
+            <div class="form-group">
                 <label for="percentRU">Desired Rack Unit Utilization (%):</label>
-                <input type="number" id="percentRU" value="80" min="10" max="100" step="1"> % (42U usable)
+                <input type="number" id="percentRU" value="80" min="10" max="100" step="1"> %
             </div>
             <div class="form-group">
                 <label for="percentPower">Desired Max Power Consumption (%):</label>
-                <input type="number" id="percentPower" value="70" min="10" max="90" step="1"> % (of 28.50 kW max, capped at 90%)
+                <input type="number" id="percentPower" value="70" min="10" max="90" step="1"> %
             </div>
             <button id="calculateButton">Calculate Optimal Configurations</button>
         </div>
@@ -426,8 +501,8 @@ Total NFS: ${metrics.total_nfs_gbps} GB/s
 S3 R/W:   ${metrics.s3_read_gbps} / ${metrics.s3_write_gbps} GB/s
 --------------------
 Speed/Space Ratio: ${ratio} (GB/s)/TB
-Actual RU: ${metrics.total_ru} / 42 U (${(metrics.total_ru / 42 * 100).toFixed(0)}%)
-Actual kW: ${metrics.total_kw} / 28.50 kW (${(metrics.total_kw / 28.50 * 100).toFixed(0)}%)
+Actual RU: ${metrics.total_ru} / ${metrics.max_ru} U (${(metrics.total_ru / metrics.max_ru * 100).toFixed(0)}%)
+Actual kW: ${metrics.total_kw} / ${metrics.max_kw} kW (${(metrics.total_kw / metrics.max_kw * 100).toFixed(0)}%)
                 `.trim();
             }
 
@@ -487,6 +562,8 @@ Actual kW: ${metrics.total_kw} / 28.50 kW (${(metrics.total_kw / 28.50 * 100).to
         let myConfigChart = null;
         
         async function calculateAndDisplay() {
+            const rackUnits = parseFloat(document.getElementById('rackUnits').value) || 42;
+            const powerOption = document.querySelector('input[name="powerOption"]:checked').value;
             const percentRU = parseFloat(document.getElementById('percentRU').value) || 80;
             const percentPower = parseFloat(document.getElementById('percentPower').value) || 70;
 
@@ -503,7 +580,7 @@ Actual kW: ${metrics.total_kw} / 28.50 kW (${(metrics.total_kw / 28.50 * 100).to
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ percentRU, percentPower }),
+                    body: JSON.stringify({ rackUnits, powerOption, percentRU, percentPower }),
                 });
 
                 if (!response.ok) {
@@ -520,7 +597,7 @@ Actual kW: ${metrics.total_kw} / 28.50 kW (${(metrics.total_kw / 28.50 * 100).to
                 // Extract the optimal configs from the response
                 const optimalConfigs = results.optimal;
 
-                let outputHTML = `<h2>Results (Target: <=${percentRU}% RU, <=${percentPower}% Power)</h2>`;
+                let outputHTML = `<h2>Results (Target: <=${percentRU}% of ${rackUnits}U, <=${percentPower}% of ${powerOption} kW)</h2>`;
                 outputHTML += formatResultBlock("Max Capacity Configuration", optimalConfigs.maxCapa);
                 outputHTML += formatResultBlock("Max NFS Read Configuration", optimalConfigs.maxNfsRead);
                 outputHTML += formatResultBlock("Max NFS Write Configuration", optimalConfigs.maxNfsWrite);

@@ -14,13 +14,12 @@ app.config['ENV'] = os.environ.get('FLASK_ENV', 'production')
 app.config['DEBUG'] = os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
 
 # --- Constants ---
-FIXED_KW = 2.0
-FIXED_RU = 4 # VAST Switches RU
-MAX_CABINET_RU = 42 # Adjusted Total RU for VAST gear
-MAX_SYSTEM_RU = MAX_CABINET_RU - FIXED_RU # Max RU for C/D boxes = 38
-MAX_CABINET_POWER = 28.50
-MAX_SYSTEM_POWER = MAX_CABINET_POWER - FIXED_KW # Max Power for C/D boxes = 26.5
-MAX_USABLE_POWER_TARGET_PERCENT = 90 # Safety cap
+FIXED_KW = 2.0  # Fixed power consumption for switches
+FIXED_RU = 4    # VAST Switches RU
+# Default values - these will be overridden by user input
+DEFAULT_MAX_CABINET_RU = 42    # Default total RU for VAST gear
+DEFAULT_MAX_CABINET_POWER = 28.50  # Default max power in kW
+MAX_USABLE_POWER_TARGET_PERCENT = 90  # Safety cap
 
 CBOX = {
     'kw': 0.5, 'ru': 1, 'ports': 2,
@@ -51,7 +50,7 @@ def get_usable_capacity(nd):
         return DBOX_CAPACITY_LOOKUP[7] + (nd - 7) * DBOX_INCREMENTAL_CAPACITY
 
 # --- Main Calculation Logic ---
-def check_constraints(nc, nd, max_ru_allowed_target, max_power_allowed_target):
+def check_constraints(nc, nd, max_ru_allowed_target, max_power_allowed_target, max_cabinet_ru, max_system_power):
     """Check if a configuration meets all system constraints
     
     Args:
@@ -59,19 +58,24 @@ def check_constraints(nc, nd, max_ru_allowed_target, max_power_allowed_target):
         nd: Number of D-Boxes
         max_ru_allowed_target: Maximum rack units allowed based on user input
         max_power_allowed_target: Maximum power allowed based on user input
+        max_cabinet_ru: Total rack units available
+        max_system_power: Maximum system power available for C/D boxes
         
     Returns:
         tuple: (is_feasible, current_total_ru, current_total_kw)
     """
+    # Calculate max system RU (total minus fixed switches)
+    max_system_ru = max_cabinet_ru - FIXED_RU
+    
     # System Limits
-    if nc + nd > MAX_SYSTEM_RU:  # RU limit for C/D boxes
+    if nc + nd > max_system_ru:  # RU limit for C/D boxes
         return False, 0, 0
         
     if (nc * CBOX['ports'] + nd * DBOX['ports']) > 128:  # Network Port limit
         return False, 0, 0
         
     current_cd_kw = nc * CBOX['kw'] + nd * DBOX['kw']
-    if current_cd_kw > MAX_SYSTEM_POWER:  # Absolute Power limit for C/D boxes
+    if current_cd_kw > max_system_power:  # Absolute Power limit for C/D boxes
         return False, 0, 0
 
     # User Input Limits
@@ -90,7 +94,7 @@ def check_constraints(nc, nd, max_ru_allowed_target, max_power_allowed_target):
     return True, current_total_ru, current_total_kw
 
 
-def calculate_metrics(nc, nd, current_total_ru, current_total_kw):
+def calculate_metrics(nc, nd, current_total_ru, current_total_kw, max_cabinet_ru, max_cabinet_power):
     """Calculate performance metrics for a given configuration
     
     Args:
@@ -98,6 +102,8 @@ def calculate_metrics(nc, nd, current_total_ru, current_total_kw):
         nd: Number of D-Boxes
         current_total_ru: Total rack units used
         current_total_kw: Total power consumption
+        max_cabinet_ru: Total rack units available
+        max_cabinet_power: Maximum cabinet power in kW
         
     Returns:
         dict: Metrics for the configuration
@@ -121,7 +127,9 @@ def calculate_metrics(nc, nd, current_total_ru, current_total_kw):
         'total_nfs_gbps': round(total_nfs_throughput, 1),  # Added total NFS throughput
         'speed_to_space_ratio': round(speed_to_space_ratio, 3),  # Added speed-to-space ratio
         'total_ru': current_total_ru,
-        'total_kw': round(current_total_kw, 2)
+        'max_ru': max_cabinet_ru,  # Added max RU for percentage calculation
+        'total_kw': round(current_total_kw, 2),
+        'max_kw': max_cabinet_power  # Added max power for percentage calculation
     }
 
 
@@ -167,10 +175,12 @@ def update_best_configs(best, nc, nd, metrics):
     return best
 
 
-def calculate_optimal_configs(percent_ru, percent_power):
+def calculate_optimal_configs(rack_units, power_option, percent_ru, percent_power):
     """Calculate optimal VAST configurations based on user constraints
     
     Args:
+        rack_units: Total rack units available
+        power_option: Power capacity option in kW
         percent_ru: Target rack unit utilization percentage
         percent_power: Target power consumption percentage
         
@@ -178,10 +188,17 @@ def calculate_optimal_configs(percent_ru, percent_power):
         dict: Optimal configurations for different optimization targets
     """
     try:
+        # Use user-provided values for rack units and power
+        max_cabinet_ru = float(rack_units)
+        max_cabinet_power = float(power_option)
+        
+        # Calculate max system power (total minus fixed switches)
+        max_system_power = max_cabinet_power - FIXED_KW
+        
         # Convert input percentages to actual limits
-        max_ru_allowed_target = math.floor(MAX_CABINET_RU * float(percent_ru) / 100)
-        power_target_kw = MAX_CABINET_POWER * float(percent_power) / 100
-        max_power_allowed_target = min(power_target_kw, MAX_CABINET_POWER * MAX_USABLE_POWER_TARGET_PERCENT / 100)
+        max_ru_allowed_target = math.floor(max_cabinet_ru * float(percent_ru) / 100)
+        power_target_kw = max_cabinet_power * float(percent_power) / 100
+        max_power_allowed_target = min(power_target_kw, max_cabinet_power * MAX_USABLE_POWER_TARGET_PERCENT / 100)
     except ValueError:
         # Handle cases where conversion fails
         return {"error": "Invalid percentage input."}
@@ -201,11 +218,13 @@ def calculate_optimal_configs(percent_ru, percent_power):
     feasible_points = []
 
     # Loop through possible combinations
-    for nc in range(2, MAX_SYSTEM_RU + 1):  # nc >= 2
-        for nd in range(1, MAX_SYSTEM_RU + 1):  # nd >= 1
+    # Use max_cabinet_ru instead of the constant
+    max_system_ru = max_cabinet_ru - FIXED_RU
+    for nc in range(2, int(max_system_ru) + 1):  # nc >= 2
+        for nd in range(1, int(max_system_ru) + 1):  # nd >= 1
             # Check if configuration meets all constraints
             is_feasible, current_total_ru, current_total_kw = check_constraints(
-                nc, nd, max_ru_allowed_target, max_power_allowed_target
+                nc, nd, max_ru_allowed_target, max_power_allowed_target, max_cabinet_ru, max_system_power
             )
             
             if not is_feasible:
@@ -213,7 +232,7 @@ def calculate_optimal_configs(percent_ru, percent_power):
                 
             # Configuration is feasible, calculate metrics
             feasible_count += 1
-            metrics = calculate_metrics(nc, nd, current_total_ru, current_total_kw)
+            metrics = calculate_metrics(nc, nd, current_total_ru, current_total_kw, max_cabinet_ru, max_cabinet_power)
             
             # Update best configurations if this one is better
             best = update_best_configs(best, nc, nd, metrics)
@@ -249,12 +268,15 @@ def handle_calculate():
     if not data:
         return jsonify({"error": "Invalid request body"}), 400
 
-    percent_ru = data.get('percentRU', 80) # Default if missing
-    percent_power = data.get('percentPower', 70) # Default if missing
+    # Get parameters from request with defaults
+    rack_units = data.get('rackUnits', DEFAULT_MAX_CABINET_RU)  # Default to 42U if missing
+    power_option = data.get('powerOption', DEFAULT_MAX_CABINET_POWER)  # Default to 28.50 kW if missing
+    percent_ru = data.get('percentRU', 80)  # Default if missing
+    percent_power = data.get('percentPower', 70)  # Default if missing
 
-    app.logger.info(f"Received calculation request: RU %={percent_ru}, Power %={percent_power}")
+    app.logger.info(f"Received calculation request: Rack Units={rack_units}, Power Option={power_option} kW, RU %={percent_ru}, Power %={percent_power}")
 
-    results = calculate_optimal_configs(percent_ru, percent_power)
+    results = calculate_optimal_configs(rack_units, power_option, percent_ru, percent_power)
     return jsonify(results)
 
 # --- Frontend Routes ---

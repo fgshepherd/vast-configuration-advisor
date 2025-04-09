@@ -654,7 +654,19 @@ Actual kW: ${metrics.total_kw} / ${metrics.max_kw} kW (${(metrics.total_kw / met
 
             // Disable button and show loading state
             calculateButton.disabled = true;
-            resultsDiv.innerHTML = '<h2>Results</h2><p>Calculating...</p>';
+            
+            // Clear the results div and add loading message using DOM manipulation
+            resultsDiv.innerHTML = ''; // Clear existing content
+            
+            // Create heading
+            const heading = document.createElement('h2');
+            heading.textContent = 'Results';
+            resultsDiv.appendChild(heading);
+            
+            // Create loading message
+            const loadingMsg = document.createElement('p');
+            loadingMsg.textContent = 'Calculating...';
+            resultsDiv.appendChild(loadingMsg);
             
             // Hide chart container while calculating
             document.getElementById('chart-container').style.display = 'none';

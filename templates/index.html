@@ -411,8 +411,8 @@
                 <div class="help-text">Enter the total number of rack units available in your environment (maximum 42U)</div>
             </div>
             <div class="form-group">
-                <label>Power Capacity Option:</label>
-                <div class="radio-options">
+                <label id="powerOptionsLabel" for="powerOption1">Power Capacity Option:</label>
+                <div class="radio-options" aria-labelledby="powerOptionsLabel">
                     <label class="radio-label">
                         <input type="radio" name="powerOption" id="powerOption1" value="28.50" checked>
                         28.50 kW, capped at 90%
@@ -507,55 +507,140 @@ Actual kW: ${metrics.total_kw} / ${metrics.max_kw} kW (${(metrics.total_kw / met
             }
 
             // Create visualization HTML for rack units
-            let vizHtml = '';
+            let vizContainer = document.createElement('div');
+            
             if (!configData.metrics?.error && configData && configData.nc > 0) {
-                // Create rack visualization
-                vizHtml = `
-                    <div class="rack-container">
-                        <!-- Fixed switches at the top (4U) -->
-                        ${Array(4).fill().map((_, i) => 
-                            `<div class="rack-unit switch" style="top: ${i * 9}px;"><div class="box-label">SW</div></div>`
-                        ).join('')}
-                        
-                        <!-- C-Boxes -->
-                        ${Array(configData.nc).fill().map((_, i) => 
-                            `<div class="rack-unit c-box" style="top: ${(i + 4) * 9}px;"><div class="box-label">C</div></div>`
-                        ).join('')}
-                        
-                        <!-- D-Boxes -->
-                        ${Array(configData.nd).fill().map((_, i) => 
-                            `<div class="rack-unit d-box" style="top: ${(i + configData.nc + 4) * 9}px;"><div class="box-label">D</div></div>`
-                        ).join('')}
-                    </div>
-                    <div class="rack-legend">
-                        <div class="legend-item"><div class="legend-color switch"></div>Switch</div>
-                        <div class="legend-item"><div class="legend-color c-box"></div>C-Box</div>
-                        <div class="legend-item"><div class="legend-color d-box"></div>D-Box</div>
-                    </div>
-                `;
+                // Create rack visualization using DOM methods instead of innerHTML
+                // to prevent XSS vulnerabilities
+                
+                // Create rack container
+                const rackContainer = document.createElement('div');
+                rackContainer.className = 'rack-container';
+                
+                // Add fixed switches at the top (4U)
+                for (let i = 0; i < 4; i++) {
+                    const switchUnit = document.createElement('div');
+                    switchUnit.className = 'rack-unit switch';
+                    switchUnit.style.top = `${i * 9}px`;
+                    
+                    const boxLabel = document.createElement('div');
+                    boxLabel.className = 'box-label';
+                    boxLabel.textContent = 'SW';
+                    
+                    switchUnit.appendChild(boxLabel);
+                    rackContainer.appendChild(switchUnit);
+                }
+                
+                // Add C-Boxes
+                for (let i = 0; i < configData.nc; i++) {
+                    const cBox = document.createElement('div');
+                    cBox.className = 'rack-unit c-box';
+                    cBox.style.top = `${(i + 4) * 9}px`;
+                    
+                    const boxLabel = document.createElement('div');
+                    boxLabel.className = 'box-label';
+                    boxLabel.textContent = 'C';
+                    
+                    cBox.appendChild(boxLabel);
+                    rackContainer.appendChild(cBox);
+                }
+                
+                // Add D-Boxes
+                for (let i = 0; i < configData.nd; i++) {
+                    const dBox = document.createElement('div');
+                    dBox.className = 'rack-unit d-box';
+                    dBox.style.top = `${(i + configData.nc + 4) * 9}px`;
+                    
+                    const boxLabel = document.createElement('div');
+                    boxLabel.className = 'box-label';
+                    boxLabel.textContent = 'D';
+                    
+                    dBox.appendChild(boxLabel);
+                    rackContainer.appendChild(dBox);
+                }
+                
+                vizContainer.appendChild(rackContainer);
+                
+                // Create rack legend
+                const rackLegend = document.createElement('div');
+                rackLegend.className = 'rack-legend';
+                
+                // Switch legend item
+                const switchLegendItem = document.createElement('div');
+                switchLegendItem.className = 'legend-item';
+                const switchLegendColor = document.createElement('div');
+                switchLegendColor.className = 'legend-color switch';
+                switchLegendItem.appendChild(switchLegendColor);
+                switchLegendItem.appendChild(document.createTextNode('Switch'));
+                rackLegend.appendChild(switchLegendItem);
+                
+                // C-Box legend item
+                const cBoxLegendItem = document.createElement('div');
+                cBoxLegendItem.className = 'legend-item';
+                const cBoxLegendColor = document.createElement('div');
+                cBoxLegendColor.className = 'legend-color c-box';
+                cBoxLegendItem.appendChild(cBoxLegendColor);
+                cBoxLegendItem.appendChild(document.createTextNode('C-Box'));
+                rackLegend.appendChild(cBoxLegendItem);
+                
+                // D-Box legend item
+                const dBoxLegendItem = document.createElement('div');
+                dBoxLegendItem.className = 'legend-item';
+                const dBoxLegendColor = document.createElement('div');
+                dBoxLegendColor.className = 'legend-color d-box';
+                dBoxLegendItem.appendChild(dBoxLegendColor);
+                dBoxLegendItem.appendChild(document.createTextNode('D-Box'));
+                rackLegend.appendChild(dBoxLegendItem);
+                
+                vizContainer.appendChild(rackLegend);
             } else {
-                vizHtml = `<div class="error-message">No visualization available</div>`;
+                // Create error message using DOM methods
+                const errorMsg = document.createElement('div');
+                errorMsg.className = 'error-message';
+                errorMsg.textContent = 'No visualization available';
+                vizContainer.appendChild(errorMsg);
             }
 
             // Get the description for this configuration type
             const description = descriptions[title] || "";
             
-            return `
-                <div class="result-block">
-                    <h3>${title}</h3>
-                    <div class="config-description">
-                        ${description}
-                    </div>
-                    <div class="result-content">
-                        <div class="result-text">
-                            <pre>${content}</pre>
-                        </div>
-                        <div class="visualization">
-                            ${vizHtml}
-                        </div>
-                    </div>
-                </div>
-            `;
+            // Create the main result block container
+            const resultBlock = document.createElement('div');
+            resultBlock.className = 'result-block';
+            
+            // Add title
+            const titleElement = document.createElement('h3');
+            titleElement.textContent = title;
+            resultBlock.appendChild(titleElement);
+            
+            // Add description
+            const descriptionDiv = document.createElement('div');
+            descriptionDiv.className = 'config-description';
+            descriptionDiv.textContent = description;
+            resultBlock.appendChild(descriptionDiv);
+            
+            // Add content container
+            const resultContent = document.createElement('div');
+            resultContent.className = 'result-content';
+            
+            // Add text content
+            const resultText = document.createElement('div');
+            resultText.className = 'result-text';
+            const pre = document.createElement('pre');
+            pre.textContent = content;
+            resultText.appendChild(pre);
+            resultContent.appendChild(resultText);
+            
+            // Add visualization
+            const visualization = document.createElement('div');
+            visualization.className = 'visualization';
+            visualization.appendChild(vizContainer);
+            resultContent.appendChild(visualization);
+            
+            resultBlock.appendChild(resultContent);
+            
+            // Return the HTML string
+            return resultBlock.outerHTML;
         }
 
         // Variable to hold the chart instance
@@ -731,7 +816,17 @@ Actual kW: ${metrics.total_kw} / ${metrics.max_kw} kW (${(metrics.total_kw / met
 
             } catch (error) {
                 console.error('Error fetching or processing calculation:', error);
-                resultsDiv.innerHTML = `<h2>Results</h2><p class="error-message">An error occurred: ${error.message}. Check console for details.</p>`;
+                // Create elements instead of using innerHTML to prevent XSS
+                resultsDiv.innerHTML = ''; // Clear existing content
+                const heading = document.createElement('h2');
+                heading.textContent = 'Results';
+                resultsDiv.appendChild(heading);
+                
+                const errorPara = document.createElement('p');
+                errorPara.className = 'error-message';
+                // Safely escape the error message
+                errorPara.textContent = `An error occurred: ${error.message || 'Unknown error'}. Check console for details.`;
+                resultsDiv.appendChild(errorPara);
             } finally {
                 // Re-enable button
                 calculateButton.disabled = false;

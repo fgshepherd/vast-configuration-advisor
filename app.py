@@ -237,14 +237,23 @@ def calculate_optimal_configs(rack_units, power_option, percent_ru, percent_powe
             # Update best configurations if this one is better
             best = update_best_configs(best, nc, nd, metrics)
             
-            # Append the current feasible point's data to the feasible_points list
+            # Append the current feasible point's data to the feasible_points list with ALL metrics
+            # This ensures the chart has all the data it needs for visualization
             feasible_points.append({
                 'nc': nc,
                 'nd': nd,
                 'capacity_tb': metrics['capacity_tb'],
+                'nfs_read_gbps': metrics['nfs_read_gbps'],
+                'nfs_write_gbps': metrics['nfs_write_gbps'],
+                's3_read_gbps': metrics['s3_read_gbps'],
+                's3_write_gbps': metrics['s3_write_gbps'],
                 'total_nfs_gbps': metrics['total_nfs_gbps'],
-                'speed_ratio': metrics['speed_to_space_ratio']
-                # Add other metrics if needed for tooltips later
+                'total_s3_gbps': metrics['total_s3_gbps'],
+                'speed_to_space_ratio': metrics['speed_to_space_ratio'],
+                'total_kw': metrics['total_kw'],
+                'total_ru': metrics['total_ru'],
+                'ru_percent': metrics['ru_percent'],
+                'power_percent': metrics['power_percent']
             })
 
     # Add feasibility check - if no config is found for a goal, mark it

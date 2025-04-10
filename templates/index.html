@@ -969,24 +969,36 @@ Actual kW: ${metrics.total_kw} / ${metrics.max_kw} kW (${(metrics.total_kw / met
             }
             
             // Update the All Feasible Configurations dataset
+            let feasibleDatasetFound = false;
             myConfigChart.data.datasets.forEach(dataset => {
                 if (dataset.label === 'All Feasible Configurations') {
+                    feasibleDatasetFound = true;
                     dataset.data = allFeasibleData;
+                    // Ensure visibility is set to true
+                    dataset.hidden = false;
                     console.log(`Updated All Feasible Configurations dataset with ${allFeasibleData.length} points`);
                 }
             });
             
             // If we don't have any All Feasible Configurations dataset, add it
-            if (!myConfigChart.data.datasets.some(ds => ds.label === 'All Feasible Configurations') && allFeasibleData.length > 0) {
+            if (!feasibleDatasetFound && allFeasibleData.length > 0) {
                 myConfigChart.data.datasets.unshift({
                     label: 'All Feasible Configurations',
                     data: allFeasibleData,
                     backgroundColor: 'rgba(200, 200, 200, 0.5)',  // Light gray with transparency
                     pointRadius: 4,  // Smaller points for feasible configs
-                    pointHoverRadius: 6
+                    pointHoverRadius: 6,
+                    hidden: false // Explicitly set to visible
                 });
                 console.log(`Added missing All Feasible Configurations dataset with ${allFeasibleData.length} points`);
             }
+            
+            // Debug: Log the current datasets to verify structure
+            console.log('Current chart datasets:', myConfigChart.data.datasets.map(ds => ({
+                label: ds.label,
+                pointCount: ds.data.length,
+                hidden: ds.hidden
+            })));
             
             // Update the Y-axis title
             myConfigChart.options.scales.y.title.text = getMetricAxisTitle(selectedMetric);
@@ -1179,9 +1191,24 @@ Actual kW: ${metrics.total_kw} / ${metrics.max_kw} kW (${(metrics.total_kw / met
                 
                 // Add all feasible points to the dataset
                 if (results.feasible_points && results.feasible_points.length > 0) {
+                    // Debug: Log the number of feasible points and sample data
+                    console.log(`Processing ${results.feasible_points.length} feasible points from API`);
+                    console.log('Sample feasible point from API:', JSON.stringify(results.feasible_points[0]));
+                    
                     // Add each feasible point to the dataset
-                    results.feasible_points.forEach(point => {
+                    results.feasible_points.forEach((point, index) => {
                         // Add each feasible point with all relevant metrics for tooltips
+                        // Debug: Log any problematic points
+                        if (!point || point.capacity_tb === undefined) {
+                            console.warn(`Invalid point at index ${index}:`, point);
+                            return; // Skip this point
+                        }
+                        
+                        // Debug: Check if the metric exists on this point
+                        if (point[defaultMetric] === undefined) {
+                            console.warn(`Point at index ${index} missing ${defaultMetric} metric:`, point);
+                        }
+                        
                         allFeasibleDataset.data.push({
                             x: point.capacity_tb,
                             y: point[defaultMetric], // Use the selected metric for Y-axis
@@ -1256,6 +1283,19 @@ Actual kW: ${metrics.total_kw} / ${metrics.max_kw} kW (${(metrics.total_kw / met
                     optimalDatasets.push(allFeasibleDataset);
                     hasValidConfigs = true;
                     console.log(`Added ${allFeasibleDataset.data.length} feasible configuration points to chart`);
+                    
+                    // Debug: Log the first few points to inspect their structure
+                    console.log('Sample feasible points:', 
+                        allFeasibleDataset.data.slice(0, 3).map(p => ({ 
+                            x: p.x, 
+                            y: p.y, 
+                            nc: p.nc, 
+                            nd: p.nd 
+                        })));
+                } else {
+                    console.warn('No feasible points available to display');
+                    console.log('allFeasiblePoints length:', allFeasiblePoints.length);
+                    console.log('results.feasible_points length:', results.feasible_points ? results.feasible_points.length : 'undefined');
                 }
                 
                 // We're no longer showing the optimal efficiency or metric-specific optimal datasets
@@ -1421,7 +1461,14 @@ Actual kW: ${metrics.total_kw} / ${metrics.max_kw} kW (${(metrics.total_kw / met
             }
         }
 
-        calculateButton.addEventListener('click', calculateAndDisplay);
+        // Add detailed debugging for the calculate button click event
+        calculateButton.addEventListener('click', function() {
+            console.log('Calculate button clicked - starting calculation and display process');
+            // Add timestamp to help track performance
+            console.time('calculation-process');
+            calculateAndDisplay();
+            console.timeEnd('calculation-process');
+        });
 
 
 

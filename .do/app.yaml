@@ -4,7 +4,7 @@ services:
   - name: vast-config-advisor-service
     github:
       repo: fgshepherd/vast-configuration-advisor
-      branch: main
+      branch: feature/modifications
     build_command: pip install -r requirements.txt
     run_command: gunicorn --log-file=- --workers=2 --bind=0.0.0.0:8080 wsgi:app
     http_port: 8080

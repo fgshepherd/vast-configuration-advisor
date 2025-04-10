@@ -894,18 +894,21 @@ Actual kW: ${metrics.total_kw} / ${metrics.max_kw} kW (${(metrics.total_kw / met
             // 1. Update the 'All Feasible Configurations' dataset
             const allFeasibleData = [];
             allFeasiblePoints.forEach(point => {
-                allFeasibleData.push({
-                    x: point.capacity_tb,
-                    y: point[selectedMetric],  // Use selected metric for Y-axis
-                    nc: point.nc,
-                    nd: point.nd,
-                    nfs_read: point.nfs_read_gbps,
-                    nfs_write: point.nfs_write_gbps,
-                    s3_read: point.s3_read_gbps,
-                    s3_write: point.s3_write_gbps,
-                    total_nfs_gbps: point.total_nfs_gbps,
-                    total_kw: point.total_kw
-                });
+                // Make sure we have valid data for this point
+                if (point && point.capacity_tb !== undefined) {
+                    allFeasibleData.push({
+                        x: point.capacity_tb,
+                        y: point[selectedMetric],  // Use selected metric for Y-axis
+                        nc: point.nc,
+                        nd: point.nd,
+                        nfs_read: point.nfs_read_gbps,
+                        nfs_write: point.nfs_write_gbps,
+                        s3_read: point.s3_read_gbps,
+                        s3_write: point.s3_write_gbps,
+                        total_nfs_gbps: point.total_nfs_gbps,
+                        total_kw: point.total_kw
+                    });
+                }
             });
             
             // We're no longer showing the "most economical" data points or the "optimal for selected metric" dataset
@@ -969,8 +972,21 @@ Actual kW: ${metrics.total_kw} / ${metrics.max_kw} kW (${(metrics.total_kw / met
             myConfigChart.data.datasets.forEach(dataset => {
                 if (dataset.label === 'All Feasible Configurations') {
                     dataset.data = allFeasibleData;
+                    console.log(`Updated All Feasible Configurations dataset with ${allFeasibleData.length} points`);
                 }
             });
+            
+            // If we don't have any All Feasible Configurations dataset, add it
+            if (!myConfigChart.data.datasets.some(ds => ds.label === 'All Feasible Configurations') && allFeasibleData.length > 0) {
+                myConfigChart.data.datasets.unshift({
+                    label: 'All Feasible Configurations',
+                    data: allFeasibleData,
+                    backgroundColor: 'rgba(200, 200, 200, 0.5)',  // Light gray with transparency
+                    pointRadius: 4,  // Smaller points for feasible configs
+                    pointHoverRadius: 6
+                });
+                console.log(`Added missing All Feasible Configurations dataset with ${allFeasibleData.length} points`);
+            }
             
             // Update the Y-axis title
             myConfigChart.options.scales.y.title.text = getMetricAxisTitle(selectedMetric);
@@ -1168,7 +1184,7 @@ Actual kW: ${metrics.total_kw} / ${metrics.max_kw} kW (${(metrics.total_kw / met
                         // Add each feasible point with all relevant metrics for tooltips
                         allFeasibleDataset.data.push({
                             x: point.capacity_tb,
-                            y: point[defaultMetric], // Use the selected metric (capacity_tb) for Y-axis
+                            y: point[defaultMetric], // Use the selected metric for Y-axis
                             nc: point.nc,
                             nd: point.nd,
                             // Include all performance metrics for complete tooltips
@@ -1236,8 +1252,10 @@ Actual kW: ${metrics.total_kw} / ${metrics.max_kw} kW (${(metrics.total_kw / met
                 // First add the all feasible points dataset if it has data
                 let hasValidConfigs = false;
                 if (allFeasibleDataset.data.length > 0) {
+                    // Make sure the all feasible points dataset is added first so it appears behind other points
                     optimalDatasets.push(allFeasibleDataset);
                     hasValidConfigs = true;
+                    console.log(`Added ${allFeasibleDataset.data.length} feasible configuration points to chart`);
                 }
                 
                 // We're no longer showing the optimal efficiency or metric-specific optimal datasets

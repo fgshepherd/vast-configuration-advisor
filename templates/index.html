@@ -12,46 +12,140 @@
     <!-- Add Chart.js library for visualization -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- New stylesheet with VAST brand colors -->
-    <style id="vast-brand-colors-v1">
-        /* Import Moderat font */
-        @import url('https://fonts.cdnfonts.com/css/moderat');
-        
-        /* Base styles */
+    <style id="avar-theme">
+        /* ==========================================================================
+           Inspired by A-VAR Website Stylesheet (a-var.com) - Basic Theme
+           ========================================================================== */
+
+        /* --- CSS Variables (Root Colors & Fonts) --- */
+        :root {
+          --avar-primary-blue: #0d6efd; /* The main blue color used extensively */
+          --avar-secondary-accent: #ffc107; /* Yellow/Orange often used for highlights/icons */
+          --avar-dark: #212529;       /* Standard dark text color */
+          --avar-body-text: var(--avar-dark);
+          --avar-heading-text: var(--avar-dark);
+          --avar-text-light: #ffffff;
+          --avar-text-muted: #6c757d;   /* Grey text for secondary info */
+          --avar-background-light: #ffffff;
+          --avar-background-medium: #f8f9fa; /* Very light grey for some sections */
+          --avar-border-color: #dee2e6; /* Standard light grey border */
+          --avar-link-color: var(--avar-primary-blue);
+
+          /* Font stack similar to common frameworks like Bootstrap */
+          --avar-font-sans-serif: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+          --avar-font-monospace: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+          --avar-font-primary: var(--avar-font-sans-serif);
+          --avar-font-weight-light: 300;
+          --avar-font-weight-normal: 400;
+          --avar-font-weight-semibold: 600; /* Often used for headings */
+          --avar-font-weight-bold: 700;
+
+          --avar-border-radius: 0.25rem;  /* Approx 4px, common small radius */
+          --avar-border-radius-lg: 0.3rem; /* Slightly larger radius */
+          --avar-box-shadow-sm: 0 .125rem .25rem rgba(0, 0, 0, .075);
+          --avar-box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .15);
+
+          --avar-spacing-unit: 1rem; /* Base spacing unit (approx 16px) */
+          
+          /* VAST colors for specific elements */
+          --vast-primary: #06D69F;
+          --vast-secondary: #1FD9FE;
+        }
+
+        /* --- Basic Reset & Body Styles --- */
+        *,
+        *::before,
+        *::after {
+          box-sizing: border-box;
+        }
+
+        html {
+          scroll-behavior: smooth;
+        }
+
         body { 
-            font-family: 'Moderat', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            line-height: 1.6; 
-            margin: 0; 
-            padding: 0; 
-            background-color: #FFFFFF !important; /* Pure White */
-            color: #0F2042 !important; /* Deep Blue / Dark */
+            font-family: var(--avar-font-primary);
+            font-size: 1rem; /* Approx 16px */
+            font-weight: var(--avar-font-weight-normal);
+            line-height: 1.6;
+            color: var(--avar-body-text);
+            background-color: #e9ecef; /* Slightly darker background */
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            margin: 0;
+            padding: 0;
         }
-        .container { 
-            max-width: 1000px; 
-            margin: 30px auto; 
-            background-color: #FFFFFF; /* Pure White */
-            padding: 30px; 
-            border-radius: 10px; 
-            box-shadow: 0 5px 15px rgba(15, 32, 66, 0.1); 
+        /* --- Layout Helpers --- */
+        .container {
+          max-width: 1140px; /* Common container width (similar to Bootstrap's -lg) */
+          width: 100%;
+          margin: 30px auto;
+          padding: calc(var(--avar-spacing-unit) * 1.5);
+          background-color: var(--avar-background-light);
+          box-shadow: var(--avar-box-shadow);
+          border-radius: var(--avar-border-radius-lg);
         }
         
-        /* Header styles */
+        /* --- Typography --- */
+        h1, h2, h3, h4, h5, h6 {
+          margin-top: 0;
+          margin-bottom: calc(var(--avar-spacing-unit) * 0.5); /* 0.5rem */
+          font-weight: var(--avar-font-weight-semibold); /* Slightly bolder headings */
+          line-height: 1.3;
+          color: var(--avar-heading-text);
+        }
+
+        h1 { font-size: 2.25rem; } /* Adjust as needed */
+        h2 { font-size: 1.8rem; }
+        h3 { font-size: 1.5rem; }
+        h4 { font-size: 1.25rem; }
+        h5 { font-size: 1.1rem; }
+        h6 { font-size: 1rem; }
+
+        p {
+          margin-top: 0;
+          margin-bottom: var(--avar-spacing-unit); /* 1rem */
+        }
+
+        a {
+          color: var(--avar-link-color);
+          text-decoration: none; /* Links are generally not underlined by default */
+          transition: color 0.2s ease-in-out, opacity 0.2s ease-in-out;
+        }
+
+        a:hover {
+          color: #0a58ca; /* Darker shade of primary blue on hover */
+          text-decoration: underline; /* Often underline on hover */
+        }
+
+        strong, b {
+            font-weight: var(--avar-font-weight-bold);
+        }
+        
+        /* Header styles - light gray background to complement the logo */
         .header {
             text-align: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #1FD9FE; /* VAST Blue / Primary */
+            margin-bottom: calc(var(--avar-spacing-unit) * 1.5);
+            padding: calc(var(--avar-spacing-unit) * 2) 0;
+            background-color: #f8f9fa; /* Light gray background */
+            border-radius: var(--avar-border-radius-lg);
+            box-shadow: var(--avar-box-shadow-sm);
+            border: 1px solid var(--avar-border-color);
         }
-        h1 {
-            color: #081636; /* Deep Blue / Darker */
+        
+        /* Specific header styling overrides the general h1 style */
+        .header h1 {
+            color: var(--avar-heading-text); /* Dark text for better contrast on light background */
             font-size: 2.5em;
-            margin-bottom: 10px;
-            font-weight: normal;
+            margin-bottom: calc(var(--avar-spacing-unit) * 0.5);
         }
+        
         .subtitle {
-            color: #18A3D1; /* VAST Blue / Darker */
+            color: var(--avar-text-muted); /* Muted text color for subtitle */
             font-size: 1.2em;
             margin-top: 0;
-            margin-bottom: 25px;
+            margin-bottom: calc(var(--avar-spacing-unit) * 1.25);
         }
         .intro-text {
             color: #0F2042; /* Deep Blue / Dark */
@@ -75,21 +169,22 @@
             object-fit: contain;
         }
         
-        /* Section styles */
+        /* --- Section Styles --- */
         .section {
-            margin-bottom: 30px;
-            padding: 20px;
-            border-radius: 8px;
-            background-color: #FFFFFF; /* Pure White */
-            box-shadow: 0 2px 10px rgba(15, 32, 66, 0.05);
+          margin-bottom: calc(var(--avar-spacing-unit) * 1.5);
+          padding: var(--avar-spacing-unit);
+          border-radius: var(--avar-border-radius-lg);
+          background-color: var(--avar-background-light);
+          box-shadow: var(--avar-box-shadow);
         }
+        
         .input-section, .results-section { 
-            margin-bottom: 30px; 
-            padding: 25px; 
-            border: none; 
-            border-radius: 8px; 
-            background-color: #FFFFFF; /* Pure White */
-            box-shadow: 0 2px 10px rgba(15, 32, 66, 0.05);
+          margin-bottom: calc(var(--avar-spacing-unit) * 1.5); 
+          padding: calc(var(--avar-spacing-unit) * 1.25); 
+          border: none; 
+          border-radius: var(--avar-border-radius-lg); 
+          background-color: var(--avar-background-light);
+          box-shadow: var(--avar-box-shadow-sm);
         }
         .instructions {
             background-color: #D7F8FF; /* VAST Blue / Lightest */
@@ -136,58 +231,75 @@
             border-top: 1px dashed #FFBC42;
         }
         
-        /* Headings */
-        h2 { 
-            color: #18A3D1; /* VAST Blue / Darker */
-            margin-top: 0; 
-            border-bottom: 2px solid #1FD9FE; /* VAST Blue / Primary */
-            padding-bottom: 10px;
+        /* Additional heading styles - these extend the base heading styles */
+        /* Section headings */
+        .section h2, .results-section h2, .input-section h2 { 
+            color: var(--avar-primary-blue);
+            border-bottom: 2px solid var(--avar-primary-blue);
+            padding-bottom: calc(var(--avar-spacing-unit) * 0.5);
             font-size: 1.6em;
-            font-weight: normal;
-        }
-        h3 { 
-            color: #081636; /* Deep Blue / Darker */
-            margin-bottom: 15px; 
-            font-size: 1.3em;
-            font-weight: normal;
         }
         
-        /* Form elements */
+        /* Result block headings */
+        .result-title {
+            color: var(--avar-primary-blue);
+            margin-top: 0;
+            margin-bottom: calc(var(--avar-spacing-unit) * 0.75);
+            font-size: 1.3em;
+            border-bottom: 1px solid var(--avar-primary-blue);
+            padding-bottom: calc(var(--avar-spacing-unit) * 0.5);
+        }
+        
+        /* --- Form Elements --- */
         .form-group {
-            margin-bottom: 20px;
+          margin-bottom: var(--avar-spacing-unit);
         }
+
         label { 
-            display: inline-block; 
-            width: 250px; 
-            margin-bottom: 8px; 
-            font-weight: 600; 
-            color: #0F2042; /* Deep Blue / Dark */
+          display: inline-block; 
+          width: 250px; 
+          margin-bottom: calc(var(--avar-spacing-unit) * 0.5); 
+          font-weight: var(--avar-font-weight-semibold); 
+          color: var(--avar-heading-text); 
         }
+
         .help-text {
-            margin-left: 250px;
-            font-size: 0.9em;
-            color: #18A3D1; /* VAST Blue / Darker */
-            margin-top: 5px;
+          margin-left: 250px;
+          font-size: 0.875rem;
+          color: var(--avar-text-muted);
+          margin-top: calc(var(--avar-spacing-unit) * 0.25);
         }
+
         input[type="number"] { 
-            width: 80px; 
-            margin-bottom: 15px; 
-            padding: 10px; 
-            border: 1px solid #1FD9FE; /* VAST Blue / Primary */
-            border-radius: 5px;
-            font-size: 1em;
+          width: 80px; 
+          margin-bottom: calc(var(--avar-spacing-unit) * 0.75); 
+          padding: calc(var(--avar-spacing-unit) * 0.5); 
+          border: 1px solid var(--avar-border-color);
+          border-radius: var(--avar-border-radius);
+          font-size: 1rem;
+          font-family: var(--avar-font-primary);
         }
+
+        input[type="number"]:focus { 
+          outline: none;
+          border-color: var(--avar-primary-blue);
+          box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+        }
+
         .radio-options {
-            display: inline-block;
+          display: inline-block;
+          margin-top: calc(var(--avar-spacing-unit) * 0.5);
         }
+
         .radio-label {
-            display: block;
-            margin-bottom: 10px;
-            width: auto;
-            font-weight: normal;
+          display: block;
+          margin-bottom: calc(var(--avar-spacing-unit) * 0.5);
+          width: auto;
+          font-weight: var(--avar-font-weight-normal);
         }
+
         input[type="radio"] {
-            margin-right: 8px;
+          margin-right: calc(var(--avar-spacing-unit) * 0.5);
         }
         input[type="file"] {
             padding: 10px 0;
@@ -199,48 +311,58 @@
             font-size: 1em;
             background-color: #FFFFFF; /* Pure White */
         }
+        /* --- Buttons --- */
         button { 
-            background-color: #06D69F; /* Vivid Green / Primary */
-            color: white; 
-            padding: 12px 20px; 
-            border: none; 
-            border-radius: 5px; 
-            cursor: pointer; 
-            font-size: 1em; 
-            font-weight: normal;
-            font-family: 'Moderat', sans-serif;
-            transition: background-color 0.3s;
+            display: inline-block;
+            font-family: var(--avar-font-primary);
+            font-weight: var(--avar-font-weight-semibold);
+            font-size: 1.1rem;
+            line-height: 1.5;
+            color: var(--avar-text-light);
+            text-align: center;
+            text-decoration: none;
+            background-color: var(--avar-primary-blue);
+            border: 1px solid transparent;
+            padding: calc(var(--avar-spacing-unit) * 0.5) var(--avar-spacing-unit);
+            border-radius: var(--avar-border-radius);
+            cursor: pointer;
+            transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out, transform 0.2s;
+            margin-top: calc(var(--avar-spacing-unit) * 0.5);
+            box-shadow: var(--avar-box-shadow-sm);
         }
         button:hover { 
-            background-color: #049A72; /* Vivid Green Darker */
+            background-color: #0b5ed7; /* Slightly darker blue */
+            border-color: #0a58ca;
+            transform: translateY(-2px);
         }
         button:disabled {
-            background-color: #18A3D1; /* VAST Blue / Darker */
-            opacity: 0.5;
+            background-color: var(--avar-text-muted);
+            opacity: 0.65;
             cursor: not-allowed;
+            transform: none;
         }
         
-        /* Results styling */
+        /* --- Results styling --- */
         .result-block { 
-            margin-top: 20px; 
-            padding: 20px; 
+            margin-top: calc(var(--avar-spacing-unit) * 1.25); 
+            padding: var(--avar-spacing-unit); 
             border: none; 
-            background-color: #F2F2F7; /* Cool White */
-            border-radius: 8px; 
-            box-shadow: 0 2px 5px rgba(15, 32, 66, 0.05);
-            transition: transform 0.2s;
+            background-color: var(--avar-background-light); 
+            border-radius: var(--avar-border-radius); 
+            box-shadow: var(--avar-box-shadow-sm);
+            transition: transform 0.2s, box-shadow 0.2s;
         }
         .result-block:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(15, 32, 66, 0.1);
+            box-shadow: var(--avar-box-shadow);
         }
         .config-description {
-            background-color: #BFF8E9; /* Vivid Green / Lightest */
-            padding: 10px 15px;
-            border-radius: 5px;
-            margin-bottom: 15px;
+            background-color: var(--avar-background-medium);
+            padding: calc(var(--avar-spacing-unit) * 0.5) calc(var(--avar-spacing-unit) * 0.75);
+            border-radius: var(--avar-border-radius);
+            margin-bottom: calc(var(--avar-spacing-unit) * 0.75);
             font-size: 0.95em;
-            border-left: 3px solid #06D69F; /* Vivid Green / Primary */
+            border-left: 3px solid var(--avar-primary-blue);
         }
         pre { 
             white-space: pre-wrap; 
@@ -399,12 +521,26 @@
         <!-- Add notes about existing VAST Cluster configuration -->
         <div class="existing-config-note">
             <h3>Existing Configuration Notes</h3>
-            <p>Current 2x2 VAST Cluster occupies 10U, TOR/Mgmt Switch Reserved Space occupies 10U, and there are 2 unused rack units at the very bottom of the cabinet. Translation: Max Rack Units for existing 2x2 VAST Cluster cabinet is 30 RU (52-22).</p>
+            <p>Current 2x2 VAST Cluster occupies 10U, TOR/Mgmt Switch Reserved Space occupies 8U, and there are 2 unused rack units at the very bottom of the cabinet. Translation: Max Rack Units for existing 2x2 VAST Cluster cabinet is 32 RU (52-20).</p>
             <p class="power-note">The current 2x2 VAST Cluster cabinet is powered by two electrical circuits, providing a total of 14.25 kilowatts. If the system is expanded to a larger configuration, additional power circuits will need to be installed to meet the increased power demand.</p>
         </div>
 
         <div class="input-section">
             <h2>Configuration Goals</h2>
+            <div class="form-group">
+                <label id="cabinetTypeLabel" for="newCabinet">Cabinet Type:</label>
+                <div class="radio-options" aria-labelledby="cabinetTypeLabel">
+                    <label class="radio-label">
+                        <input type="radio" name="cabinetType" id="newCabinet" value="new" checked>
+                        Use new cabinet
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="cabinetType" id="existingCabinet" value="existing">
+                        Use existing 2x2 VAST cluster cabinet
+                    </label>
+                </div>
+                <div class="help-text">Selecting "Use existing 2x2 VAST cluster cabinet" will automatically adjust available rack units to 32U and reduce available power by 6.3 kW</div>
+            </div>
             <div class="form-group">
                 <label for="rackUnits">Rack Units Available:</label>
                 <input type="number" id="rackUnits" value="42" min="10" max="42" step="1"> U
@@ -425,11 +561,13 @@
             </div>
             <div class="form-group">
                 <label for="percentRU">Desired Rack Unit Utilization (%):</label>
-                <input type="number" id="percentRU" value="80" min="10" max="100" step="1"> %
+                <input type="number" id="percentRU" value="100" min="10" max="100" step="1"> %
+                <!-- Updated default to 100% as this is typically what customers want -->
             </div>
             <div class="form-group">
                 <label for="percentPower">Desired Max Power Consumption (%):</label>
-                <input type="number" id="percentPower" value="70" min="10" max="90" step="1"> %
+                <input type="number" id="percentPower" value="90" min="10" max="90" step="1"> %
+                <!-- Updated default to 90% as this is typically what customers want -->
             </div>
             <button id="calculateButton">Calculate Optimal Configurations</button>
         </div>
@@ -445,13 +583,42 @@
         <!-- Add chart container for visualization -->
         <div class="results-section" id="chart-container" style="margin-top: 30px; display: none;"> <!-- Initially hidden -->
             <h2>Capacity vs. NFS Throughput (Optimal Configurations)</h2>
+            
+            <!-- Add metric selection controls -->
+            <div class="metric-selector" style="margin-bottom: 20px; text-align: center;">
+                <p style="margin-bottom: 10px; font-weight: bold;">Highlight optimal configurations for:</p>
+                <div class="radio-options" style="display: inline-block;">
+                    <label class="radio-label" style="display: inline-block; margin-right: 15px;">
+                        <input type="radio" name="metricSelector" value="nfs_read_gbps">
+                        NFS Read
+                    </label>
+                    <label class="radio-label" style="display: inline-block; margin-right: 15px;">
+                        <input type="radio" name="metricSelector" value="nfs_write_gbps">
+                        NFS Write
+                    </label>
+                    <label class="radio-label" style="display: inline-block; margin-right: 15px;">
+                        <input type="radio" name="metricSelector" value="s3_read_gbps">
+                        S3 Read
+                    </label>
+                    <label class="radio-label" style="display: inline-block; margin-right: 15px;">
+                        <input type="radio" name="metricSelector" value="s3_write_gbps">
+                        S3 Write
+                    </label>
+                    <label class="radio-label" style="display: inline-block;">
+                        <input type="radio" name="metricSelector" value="capacity_tb" checked>
+                        Capacity
+                    </label>
+                </div>
+            </div>
+            
             <canvas id="configChart"></canvas>
             <p style="text-align: center; font-size: 0.9em;"><i>Each colored point represents an optimal configuration. Hover over points for details.</i></p>
         </div>
 
         <div class="footer-note">
             <p><strong>Note on Throughput:</strong> S3 performance may differ from NFSv3 primarily due to protocol overhead. S3 typically operates over HTTP/S, which involves more layers and processing than NFS's more direct network file protocol, especially impacting latency-sensitive operations and metadata handling.</p>
-             <p><strong>Note on Ratios:</strong> All configurations require a minimum C-Box count of at least half the D-Box count (N_C >= N_D / 2).</p>
+            <p><strong>Note on Ratios:</strong> All configurations require a minimum C-Box count of at least half the D-Box count (N_C >= N_D / 2).</p>
+            <p><strong>Note on Power Calculations:</strong> All power calculations account for 2.0kW of power being used by the Top-of-Rack (TOR) and Management switches for TTD. This overhead is automatically factored into the power constraints when determining feasible configurations.</p>
        </div>
     </div>
 
@@ -643,10 +810,257 @@ Actual kW: ${metrics.total_kw} / ${metrics.max_kw} kW (${(metrics.total_kw / met
             return resultBlock.outerHTML;
         }
 
-        // Variable to hold the chart instance
+        // Global variables to store data and chart instance
         let myConfigChart = null;
+        let allFeasiblePoints = [];
+        let selectedMetric = 'capacity_tb'; // Default selected metric
+        
+        // Helper function to get display name for a metric
+        function getMetricDisplayName(metric) {
+            // Return a user-friendly name for each metric
+            switch(metric) {
+                // Remove total_nfs_gbps case since we're no longer using it
+                case 'nfs_read_gbps': return 'NFS Read';
+                case 'nfs_write_gbps': return 'NFS Write';
+                case 's3_read_gbps': return 'S3 Read';
+                case 's3_write_gbps': return 'S3 Write';
+                case 'capacity_tb': return 'Capacity';
+                default: return 'Performance';
+            }
+        }
+        
+        // Helper function to get Y-axis title for a metric
+        function getMetricAxisTitle(metric) {
+            // Return the appropriate Y-axis title based on the selected metric
+            switch(metric) {
+                // Remove total_nfs_gbps case since we're no longer using it
+                case 'nfs_read_gbps': return 'NFS Read (GB/s)';
+                case 'nfs_write_gbps': return 'NFS Write (GB/s)';
+                case 's3_read_gbps': return 'S3 Read (GB/s)';
+                case 's3_write_gbps': return 'S3 Write (GB/s)';
+                case 'capacity_tb': return 'Capacity (TB)';
+                default: return 'Performance (GB/s)';
+            }
+        }
+        
+        // Function to get the maximum value for a metric in a D-box group
+        function getMaxValueForMetric(points, metric) {
+            // Add a special case for the maximum value in this D-box group
+            // This ensures we always highlight the best performing configuration
+            // Sort by the selected metric in descending order
+            const sortedByMetric = [...points].sort((a, b) => {
+                const aValue = a[metric] || 0;
+                const bValue = b[metric] || 0;
+                return bValue - aValue;
+            });
+            
+            // If the maximum value is better than our lastImprovement, use it instead
+            if (sortedByMetric.length > 0) {
+                const maxPoint = sortedByMetric[0];
+                const maxValue = maxPoint[metric] || 0;
+                
+                // If we haven't found an improvement point yet, or if this point is better
+                if (!lastImprovement || maxValue > (lastImprovement[metric] || 0)) {
+                    // Remove any previous points for this D-box count
+                    const numericNd = parseInt(nd);
+                    const filteredPoints = optimalPoints.filter(p => p.nd !== numericNd);
+                    optimalPoints.length = 0; // Clear the array
+                    optimalPoints.push(...filteredPoints); // Add filtered points back
+                    // Add this point
+                    optimalPoints.push(maxPoint);
+                }
+            }
+            
+            return optimalPoints;
+        }
+        
+        // Function to update the chart based on the selected metric
+        function updateChart() {
+            // Only update if we have data and a chart
+            if (!myConfigChart || allFeasiblePoints.length === 0) return;
+            
+            // Get the selected metric
+            const metricRadios = document.getElementsByName('metricSelector');
+            for (const radio of metricRadios) {
+                if (radio.checked) {
+                    selectedMetric = radio.value;
+                    break;
+                }
+            }
+            
+            // Update ALL datasets to use the selected metric for Y-axis values
+            // This ensures consistent Y-axis values across all datasets
+            
+            // 1. Update the 'All Feasible Configurations' dataset
+            const allFeasibleData = [];
+            allFeasiblePoints.forEach(point => {
+                allFeasibleData.push({
+                    x: point.capacity_tb,
+                    y: point[selectedMetric],  // Use selected metric for Y-axis
+                    nc: point.nc,
+                    nd: point.nd,
+                    nfs_read: point.nfs_read_gbps,
+                    nfs_write: point.nfs_write_gbps,
+                    s3_read: point.s3_read_gbps,
+                    s3_write: point.s3_write_gbps,
+                    total_nfs_gbps: point.total_nfs_gbps,
+                    total_kw: point.total_kw
+                });
+            });
+            
+            // We're no longer showing the "most economical" data points or the "optimal for selected metric" dataset
+            // Only showing the max performance point for each metric
+            
+            // 2. Remove all existing datasets except 'All Feasible Configurations'
+            // We'll only keep the base dataset and add the max performance point for the selected metric
+            myConfigChart.data.datasets = myConfigChart.data.datasets.filter(dataset => 
+                dataset.label === 'All Feasible Configurations'
+            );
+            
+            // 5. Add only the optimal configuration that's relevant to the currently selected metric
+            if (window.allOptimalConfigs) {
+                // Mapping between metrics and their corresponding optimal configurations
+                const metricToConfigMap = {
+                    'capacity_tb': 'max_capacity',
+                    'nfs_read_gbps': 'max_nfs_read',
+                    'nfs_write_gbps': 'max_nfs_write',
+                    's3_read_gbps': 'max_s3_read',
+                    's3_write_gbps': 'max_s3_write'
+                };
+                
+                // Get the optimal configuration for the selected metric
+                const configKey = metricToConfigMap[selectedMetric];
+                
+                if (configKey && window.allOptimalConfigs[configKey] && 
+                    window.allOptimalConfigs[configKey].config) {
+                    
+                    const optimalConfig = window.allOptimalConfigs[configKey];
+                    const config = optimalConfig.config;
+                    
+                    // Only add if the configuration has valid data
+                    if (config && config.nc > 0 && config.metrics) {
+                        // Add the optimal configuration as a dataset
+                        myConfigChart.data.datasets.push({
+                            label: optimalConfig.label,
+                            data: [{
+                                x: config.metrics.capacity_tb,
+                                y: config.metrics[selectedMetric],
+                                nc: config.nc,
+                                nd: config.nd,
+                                nfs_read: config.metrics.nfs_read_gbps,
+                                nfs_write: config.metrics.nfs_write_gbps,
+                                s3_read: config.metrics.s3_read_gbps,
+                                s3_write: config.metrics.s3_write_gbps,
+                                total_nfs_gbps: config.metrics.total_nfs_gbps,
+                                total_kw: config.total_kw
+                            }],
+                            backgroundColor: optimalConfig.color,
+                            pointRadius: 8,
+                            pointHoverRadius: 10
+                        });
+                        
+                        // Add helpful debug comment
+                        console.log(`Added optimal configuration for ${selectedMetric}: ${optimalConfig.label}`);
+                    }
+                }
+            }
+            
+            // Update the All Feasible Configurations dataset
+            myConfigChart.data.datasets.forEach(dataset => {
+                if (dataset.label === 'All Feasible Configurations') {
+                    dataset.data = allFeasibleData;
+                }
+            });
+            
+            // Update the Y-axis title
+            myConfigChart.options.scales.y.title.text = getMetricAxisTitle(selectedMetric);
+            
+            // Update the chart
+            myConfigChart.update();
+            
+            // Add helpful debug comment
+            console.log(`Updated chart with ${selectedMetric} as Y-axis metric`);
+        }
+        
+        // Function to update form values based on cabinet type selection
+        function updateFormBasedOnCabinetType() {
+            const cabinetType = document.querySelector('input[name="cabinetType"]:checked').value;
+            const rackUnitsInput = document.getElementById('rackUnits');
+            const powerOption1 = document.getElementById('powerOption1');
+            const powerOption2 = document.getElementById('powerOption2');
+            
+            // Existing 2x2 VAST cluster power usage constant
+            const EXISTING_2X2_POWER_USAGE = 6.3; // kW
+            
+            if (cabinetType === 'existing') {
+                // Set rack units to 32 for existing 2x2 VAST cluster cabinet
+                // Taking 8U off the total cabinet capacity for TOR/Mgmt switches
+                rackUnitsInput.value = 32;
+                rackUnitsInput.setAttribute('max', 32);
+                rackUnitsInput.disabled = true;
+                
+                // Update power option labels to show reduced power
+                const power1 = (28.50 - EXISTING_2X2_POWER_USAGE).toFixed(2);
+                const power2 = (14.25 - EXISTING_2X2_POWER_USAGE).toFixed(2);
+                
+                // Update the power option labels to show the reduced power
+                powerOption1.parentElement.innerHTML = 
+                    `<input type="radio" name="powerOption" id="powerOption1" value="${power1}" ${powerOption1.checked ? 'checked' : ''}>
+                    ${power1} kW (28.50 kW - ${EXISTING_2X2_POWER_USAGE} kW used by existing 2x2 cluster), capped at 90%`;
+                
+                powerOption2.parentElement.innerHTML = 
+                    `<input type="radio" name="powerOption" id="powerOption2" value="${power2}" ${powerOption2.checked ? 'checked' : ''}>
+                    ${power2} kW (14.25 kW - ${EXISTING_2X2_POWER_USAGE} kW used by existing 2x2 cluster), capped at 90%`;
+            } else {
+                // Reset to default for new cabinet
+                rackUnitsInput.value = 42;
+                rackUnitsInput.setAttribute('max', 42);
+                rackUnitsInput.disabled = false;
+                
+                // Reset power option labels to original values
+                // Re-query the elements as they might have been replaced
+                const updatedPowerOption1 = document.getElementById('powerOption1');
+                const updatedPowerOption2 = document.getElementById('powerOption2');
+                
+                updatedPowerOption1.parentElement.innerHTML = 
+                    `<input type="radio" name="powerOption" id="powerOption1" value="28.50" ${updatedPowerOption1.checked ? 'checked' : ''}>
+                    28.50 kW, capped at 90%`;
+                
+                updatedPowerOption2.parentElement.innerHTML = 
+                    `<input type="radio" name="powerOption" id="powerOption2" value="14.25" ${updatedPowerOption2.checked ? 'checked' : ''}>
+                    14.25 kW, capped at 90%`;
+            }
+            
+            // Add detailed comment explaining what this function does
+            // This function updates the form values based on the selected cabinet type:
+            // 1. For existing 2x2 VAST cluster cabinet: 
+            //    - Sets rack units to 30 and disables the input
+            //    - Reduces power options by 6.3 kW (power used by existing cluster)
+            //    - Updates labels to show the original and reduced power values
+            // 2. For new cabinet:
+            //    - Resets rack units to 42 and enables the input
+            //    - Resets power options to original values
+        }
+        
+        // Add event listeners for cabinet type radio buttons
+        document.querySelectorAll('input[name="cabinetType"]').forEach(radio => {
+            radio.addEventListener('change', updateFormBasedOnCabinetType);
+        });
+        
+        // Add event listeners for metric selection radio buttons
+        document.addEventListener('DOMContentLoaded', function() {
+            const metricRadios = document.getElementsByName('metricSelector');
+            for (const radio of metricRadios) {
+                radio.addEventListener('change', updateChart);
+                console.log('Added event listener to metric selector:', radio.value);
+            }
+        });
+        
+        // Initialize form based on default selection
+        updateFormBasedOnCabinetType();
         
         async function calculateAndDisplay() {
+            const cabinetType = document.querySelector('input[name="cabinetType"]:checked').value;
             const rackUnits = parseFloat(document.getElementById('rackUnits').value) || 42;
             const powerOption = document.querySelector('input[name="powerOption"]:checked').value;
             const percentRU = parseFloat(document.getElementById('percentRU').value) || 80;
@@ -672,12 +1086,22 @@ Actual kW: ${metrics.total_kw} / ${metrics.max_kw} kW (${(metrics.total_kw / met
             document.getElementById('chart-container').style.display = 'none';
 
             try {
+                // The power option is already adjusted in the UI when the cabinet type is selected
+                // No need to adjust it again here, as the value from the radio button already reflects
+                // the reduced power for the existing 2x2 VAST cluster cabinet
+                
                 const response = await fetch('/calculate', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ rackUnits, powerOption, percentRU, percentPower }),
+                    body: JSON.stringify({ 
+                        rackUnits, 
+                        powerOption, // Power option is already adjusted in the UI
+                        percentRU, 
+                        percentPower,
+                        cabinetType // Send cabinet type to backend
+                    }),
                 });
 
                 if (!response.ok) {
@@ -700,8 +1124,8 @@ Actual kW: ${metrics.total_kw} / ${metrics.max_kw} kW (${(metrics.total_kw / met
                 outputHTML += formatResultBlock("Max NFS Write Configuration", optimalConfigs.maxNfsWrite);
                 outputHTML += formatResultBlock("Max S3 Read Configuration", optimalConfigs.maxS3Read);
                 outputHTML += formatResultBlock("Max S3 Write Configuration", optimalConfigs.maxS3Write);
-                // Add the new Max Speed-to-Space Ratio configuration
-                outputHTML += formatResultBlock("Max Speed-to-Space Ratio Configuration", optimalConfigs.maxSpeedToSpace);
+                // Removed Max Speed-to-Space Ratio configuration to improve chart readability
+                // outputHTML += formatResultBlock("Max Speed-to-Space Ratio Configuration", optimalConfigs.maxSpeedToSpace);
 
                 resultsDiv.innerHTML = outputHTML;
                 
@@ -714,57 +1138,132 @@ Actual kW: ${metrics.total_kw} / ${metrics.max_kw} kW (${(metrics.total_kw / met
                     myConfigChart.destroy();
                 }
 
-                // Create datasets for optimal configurations only
+                // Store the feasible points globally for later use
+                allFeasiblePoints = results.feasible_points || [];
+                
+                // For initial chart load, only show the optimal configuration for the default metric (Capacity)
+                // Define defaultMetric here so it can be used throughout the function
+                const defaultMetric = 'capacity_tb';
+                
+                // Create datasets for optimal, optimal efficiency, and all feasible configurations
                 const optimalDatasets = [];
                 
-                // Add optimal configurations as highlighted points
-                // Only include the 5 specific optimal configurations requested
-                // Use VAST brand colors for the chart points
-                const optimalPoints = [
-                    { 
+                // Dataset for all feasible configurations (gray background points)
+                const allFeasibleDataset = {
+                    label: 'All Feasible Configurations',
+                    data: [],
+                    backgroundColor: 'rgba(200, 200, 200, 0.5)',  // Light gray with transparency
+                    pointRadius: 4,  // Smaller points for feasible configs
+                    pointHoverRadius: 6
+                };
+                
+                // We're simplifying the chart by removing the "most economical" data points
+                // We'll only show the max performance point for each metric
+                // No need for the optimal efficiency or metric-specific optimal datasets anymore
+                
+                // Add all feasible points to the dataset
+                if (results.feasible_points && results.feasible_points.length > 0) {
+                    // Add each feasible point to the dataset
+                    results.feasible_points.forEach(point => {
+                        // Add each feasible point with all relevant metrics for tooltips
+                        allFeasibleDataset.data.push({
+                            x: point.capacity_tb,
+                            y: point[defaultMetric], // Use the selected metric (capacity_tb) for Y-axis
+                            nc: point.nc,
+                            nd: point.nd,
+                            // Include all performance metrics for complete tooltips
+                            nfs_read: point.nfs_read_gbps,
+                            nfs_write: point.nfs_write_gbps,
+                            s3_read: point.s3_read_gbps,
+                            s3_write: point.s3_write_gbps,
+                            total_nfs_gbps: point.total_nfs_gbps,
+                            total_kw: point.total_kw  // Add power consumption for tooltips
+                        });
+                    });
+                }
+                
+                // We're no longer showing the "most economical" data points
+                // Only showing the max performance point for each metric
+                
+                // Store all optimal configurations in a global variable for later use
+                // We'll only show the one that's relevant to the selected metric
+                window.allOptimalConfigs = {
+                    'max_capacity': {
                         label: 'Max Capacity',
                         config: optimalConfigs.maxCapa,
                         color: '#06D69F' // Vivid Green / Primary
                     },
-                    { 
+                    'max_nfs_read': {
                         label: 'Max NFS Read',
                         config: optimalConfigs.maxNfsRead,
                         color: '#FF4264' // Bright Red / Primary
                     },
-                    { 
+                    'max_nfs_write': {
                         label: 'Max NFS Write',
                         config: optimalConfigs.maxNfsWrite,
                         color: '#FFBC42' // Warm Yellow / Primary
                     },
-                    { 
+                    'max_s3_read': {
                         label: 'Max S3 Read',
                         config: optimalConfigs.maxS3Read,
                         color: '#1FD9FE' // VAST Blue / Primary
                     },
-                    { 
+                    'max_s3_write': {
                         label: 'Max S3 Write',
                         config: optimalConfigs.maxS3Write,
                         color: '#18A3D1' // VAST Blue / Darker
-                    },
-                    { 
-                        label: 'Max Speed-to-Space',
-                        config: optimalConfigs.maxSpeedToSpace,
-                        color: '#B234E4' // Electric Violet
                     }
-                ];
+                    // Removed Max Speed-to-Space Ratio Configuration to improve chart readability
+                };
                 
-                // Add each optimal point as a separate dataset for better visibility
+                // Map metrics to their corresponding configuration keys
+                const metricToConfigMap = {
+                    'capacity_tb': 'max_capacity',
+                    'nfs_read_gbps': 'max_nfs_read',
+                    'nfs_write_gbps': 'max_nfs_write',
+                    's3_read_gbps': 'max_s3_read',
+                    's3_write_gbps': 'max_s3_write'
+                };
+                
+                const defaultConfigKey = metricToConfigMap[defaultMetric];
+                const optimalPoints = [];
+                
+                if (defaultConfigKey && window.allOptimalConfigs[defaultConfigKey] && 
+                    window.allOptimalConfigs[defaultConfigKey].config) {
+                    optimalPoints.push(window.allOptimalConfigs[defaultConfigKey]);
+                }
+                
+                // First add the all feasible points dataset if it has data
                 let hasValidConfigs = false;
+                if (allFeasibleDataset.data.length > 0) {
+                    optimalDatasets.push(allFeasibleDataset);
+                    hasValidConfigs = true;
+                }
+                
+                // We're no longer showing the optimal efficiency or metric-specific optimal datasets
+                // Only showing the max performance point for each metric
+                
+                // Then add only the optimal point for the default selected metric (NFS Read)
+                // Other optimal points will be added/removed dynamically when the user changes the metric
                 optimalPoints.forEach(point => {
                     if (point.config && point.config.nc > 0 && point.config.metrics) {
                         hasValidConfigs = true;
+                        // Create a dataset for this optimal point using the default metric (nfs_read_gbps)
                         optimalDatasets.push({
                             label: point.label,
+                            // Include all relevant metrics for optimal configuration tooltips
                             data: [{
                                 x: point.config.metrics.capacity_tb,
-                                y: point.config.metrics.total_nfs_gbps,
+                                y: point.config.metrics[defaultMetric], // Use the selected metric (capacity_tb) for Y-axis
                                 nc: point.config.nc,
-                                nd: point.config.nd
+                                nd: point.config.nd,
+                                // Include all performance metrics for complete tooltips
+                                nfs_read: point.config.metrics.nfs_read_gbps,
+                                nfs_write: point.config.metrics.nfs_write_gbps,
+                                s3_read: point.config.metrics.s3_read_gbps,
+                                s3_write: point.config.metrics.s3_write_gbps,
+                                total_nfs_gbps: point.config.metrics.total_nfs_gbps,
+                                total_kw: point.config.total_kw
                             }],
                             backgroundColor: point.color,
                             pointRadius: 10,
@@ -773,9 +1272,16 @@ Actual kW: ${metrics.total_kw} / ${metrics.max_kw} kW (${(metrics.total_kw / met
                     }
                 });
                 
+                // Add a comment explaining that other optimal points will be shown/hidden dynamically
+                console.log('Initial chart setup complete. Optimal points will update based on selected metric.');
+                
                 // Only show chart if there are valid configurations
                 if (hasValidConfigs) {
                     chartContainer.style.display = 'block'; // Show the chart container
+                    
+                    // Chart title is set via the y-axis title
+                    // Add a comment to explain what's happening for future maintenance
+                    console.log(`Initial chart setup with ${defaultMetric} as Y-axis metric`);
                     
                     myConfigChart = new Chart(ctx, {
                         type: 'scatter',
@@ -790,20 +1296,72 @@ Actual kW: ${metrics.total_kw} / ${metrics.max_kw} kW (${(metrics.total_kw / met
                                     title: { display: true, text: 'Total Usable Capacity (TB)' }
                                 },
                                 y: {
-                                    title: { display: true, text: 'Total NFS Throughput (Read+Write, GB/s)' }
+                                    // Use linear scale for Y-axis
+                                    type: 'linear',
+                                    title: { 
+                                        display: true, 
+                                        // Dynamic title based on selected metric
+                                        text: getMetricAxisTitle(selectedMetric)
+                                    }
                                 }
                             },
                             plugins: {
                                 tooltip: {
                                     callbacks: {
-                                        // Simplified tooltips as requested
+                                        // Enhanced tooltips with more details
                                         label: function(context) {
                                             const point = context.raw;
                                             if (!point) return '';
-                                            return [
-                                                `${context.dataset.label}`,
-                                                `C:${point.nc} D:${point.nd}`
-                                            ];
+                                            
+                                            // For optimal configurations, show more details
+                                            if (context.dataset.label === 'Optimal for Selected Metric') {
+                                                // For metric-specific optimal configurations
+                                                return [
+                                                    `Optimal ${getMetricDisplayName(selectedMetric)} Configuration`,
+                                                    `C-Boxes: ${point.nc}`,
+                                                    `D-Boxes: ${point.nd}`,
+                                                    `Capacity: ${point.x.toFixed(1)} TB`,
+                                                    `${getMetricDisplayName(selectedMetric)}: ${point.y.toFixed(1)} GB/s`,
+                                                    `NFS Read: ${point.nfs_read || 'N/A'} GB/s`,
+                                                    `NFS Write: ${point.nfs_write || 'N/A'} GB/s`,
+                                                    `S3 Read: ${point.s3_read || 'N/A'} GB/s`,
+                                                    `S3 Write: ${point.s3_write || 'N/A'} GB/s`,
+                                                    `Power: ${point.total_kw ? point.total_kw.toFixed(2) : 'N/A'} kW`,
+                                                    `Note: Maximum ${getMetricDisplayName(selectedMetric)} for this D-Box count`
+                                                ];
+                                            } else if (context.dataset.label === 'Most Cost-Efficient Configurations') {
+                                                // We've removed the 'Most Cost-Efficient Configurations' dataset
+                                                // This code path should never be reached now
+                                                return [];
+                                            } else if (context.dataset.label !== 'All Feasible Configurations') {
+                                                // For other optimal configurations
+                                                return [
+                                                    `${context.dataset.label}`,
+                                                    `C-Boxes: ${point.nc}`,
+                                                    `D-Boxes: ${point.nd}`,
+                                                    `Capacity: ${point.x.toFixed(1)} TB`,
+                                                    `${getMetricDisplayName(selectedMetric)}: ${point.y.toFixed(1)} GB/s`,
+                                                    `NFS Read: ${point.nfs_read || 'N/A'} GB/s`,
+                                                    `NFS Write: ${point.nfs_write || 'N/A'} GB/s`,
+                                                    `S3 Read: ${point.s3_read || 'N/A'} GB/s`,
+                                                    `S3 Write: ${point.s3_write || 'N/A'} GB/s`,
+                                                    `Power: ${point.total_kw ? point.total_kw.toFixed(2) : 'N/A'} kW`
+                                                ];
+                                            } else {
+                                                // For regular feasible configurations, show basic info
+                                                return [
+                                                    `Feasible Configuration`,
+                                                    `C-Boxes: ${point.nc}`,
+                                                    `D-Boxes: ${point.nd}`,
+                                                    `Capacity: ${point.x.toFixed(1)} TB`,
+                                                    `${getMetricDisplayName(selectedMetric)}: ${point.y.toFixed(1)} GB/s`,
+                                                    `NFS Read: ${point.nfs_read || 'N/A'} GB/s`,
+                                                    `NFS Write: ${point.nfs_write || 'N/A'} GB/s`,
+                                                    `S3 Read: ${point.s3_read || 'N/A'} GB/s`,
+                                                    `S3 Write: ${point.s3_write || 'N/A'} GB/s`,
+                                                    `Power: ${point.total_kw ? point.total_kw.toFixed(2) : 'N/A'} kW`
+                                                ];
+                                            }
                                         }
                                     }
                                 },

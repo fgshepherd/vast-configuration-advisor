@@ -30,24 +30,106 @@ DBOX = {
     'nfsWrite': 12.7, 'nfsRead': 51, 's3Write': 12.7, 's3Read': 51
 }
 
-DBOX_CAPACITY_LOOKUP = [
-    0, 982.67136, 2210.807808, 3447.189504, 4678.975488,
-    5909.54496, 7139.303424, 8368.92672
-]
-DBOX_INCREMENTAL_CAPACITY = 1195.56096
+# D-Box capacity data will be loaded from CSV
+DBOX_CAPACITY_LOOKUP = [0]  # Initialize with 0 for 0 boxes
+DBOX_INCREMENTAL_CAPACITY = 1195.56096  # Default value, will be updated from CSV
+
+# Load D-Box capacity data from CSV
+def load_dbox_capacity_data():
+    """Load D-Box capacity data from CSV file
+    
+    Updates the global DBOX_CAPACITY_LOOKUP and DBOX_INCREMENTAL_CAPACITY variables
+    based on data from the CSV file.
+    """
+    import csv
+    import os
+    
+    global DBOX_CAPACITY_LOOKUP, DBOX_INCREMENTAL_CAPACITY
+    
+    csv_path = os.path.join('static', 'DF-3060_capacities.csv')
+    
+    # Check if file exists
+    if not os.path.exists(csv_path):
+        app.logger.warning(f"CSV file not found: {csv_path}")
+        return
+    
+    try:
+        capacity_lookup = _parse_csv_data(csv_path)
+        
+        # Update global variables
+        if capacity_lookup:
+            DBOX_CAPACITY_LOOKUP = capacity_lookup
+            app.logger.info(f"Loaded D-Box capacity data: {DBOX_CAPACITY_LOOKUP}")
+            app.logger.info(f"Incremental capacity: {DBOX_INCREMENTAL_CAPACITY}")
+    except Exception as e:
+        app.logger.error(f"Failed to load D-Box capacity data: {e}")
+
+def _parse_csv_data(csv_path):
+    """Parse the CSV file and extract D-Box capacity data
+    
+    Args:
+        csv_path: Path to the CSV file
+        
+    Returns:
+        list: Capacity lookup table
+    """
+    import csv
+    global DBOX_INCREMENTAL_CAPACITY
+    
+    # Initialize with 0 for 0 boxes
+    capacity_lookup = [0]
+    
+    with open(csv_path, 'r', encoding='utf-8-sig') as csvfile:
+        reader = csv.reader(csvfile)
+        next(reader)  # Skip header row
+        
+        for row in reader:
+            if len(row) < 4:  # Skip rows without enough columns
+                continue
+                
+            try:
+                num_dboxes = int(row[0])
+                total_capacity = float(row[3])
+                
+                # Add to lookup table if it's the next sequential number
+                if num_dboxes == len(capacity_lookup):
+                    capacity_lookup.append(total_capacity)
+                    
+                    # Update incremental capacity based on the last two entries
+                    # Use D-Boxes 8 and 9 to calculate the incremental capacity
+                    if num_dboxes >= 8 and num_dboxes <= 9:
+                        DBOX_INCREMENTAL_CAPACITY = total_capacity - capacity_lookup[num_dboxes-1]
+            except (ValueError, IndexError) as e:
+                app.logger.warning(f"Error parsing CSV row: {row}. Error: {e}")
+                
+    return capacity_lookup
+
+# Load capacity data when app starts
+load_dbox_capacity_data()
 
 # --- Helper Functions ---
 def get_usable_capacity(nd):
+    """Calculate usable capacity for a given number of D-Boxes
+    
+    Args:
+        nd: Number of D-Boxes
+        
+    Returns:
+        float: Usable capacity in TB
+    """
     if nd <= 0: return 0
-    if nd <= 7:
-        # Ensure index is within bounds in case nd is fractional temporarily
-        nd_idx = math.floor(nd)
-        if nd_idx >= len(DBOX_CAPACITY_LOOKUP):
-             # Fallback for safety, though shouldn't happen with integer loops
-             return DBOX_CAPACITY_LOOKUP[-1] + (nd - (len(DBOX_CAPACITY_LOOKUP)-1)) * DBOX_INCREMENTAL_CAPACITY
+    
+    # Ensure index is within bounds
+    nd_idx = math.floor(nd)
+    
+    if nd_idx < len(DBOX_CAPACITY_LOOKUP):
+        # Use exact value from lookup table
         return DBOX_CAPACITY_LOOKUP[nd_idx]
     else:
-        return DBOX_CAPACITY_LOOKUP[7] + (nd - 7) * DBOX_INCREMENTAL_CAPACITY
+        # Use incremental capacity for larger numbers
+        highest_known_index = len(DBOX_CAPACITY_LOOKUP) - 1
+        highest_known_value = DBOX_CAPACITY_LOOKUP[highest_known_index]
+        return highest_known_value + (nd - highest_known_index) * DBOX_INCREMENTAL_CAPACITY
 
 # --- Main Calculation Logic ---
 def check_constraints(nc, nd, max_ru_allowed_target, max_power_allowed_target, max_cabinet_ru, max_system_power):
@@ -315,5 +397,5 @@ if __name__ == '__main__':
     # For production deployment on DigitalOcean, use port 8080 (set in Dockerfile and .do/app.yaml)
     # Note: Never use port 5000 as it conflicts with macOS AirPlay
     # Always listen on 0.0.0.0 to be accessible from outside the container
-    port = int(os.environ.get('PORT', 8080))  # Default to 8080 for DigitalOcean compatibility
+    port = int(os.environ.get('PORT', 5094))  # Default to 5094 for local development, 8080 for DigitalOcean
     app.run(host='0.0.0.0', port=port)

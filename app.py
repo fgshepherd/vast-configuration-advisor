@@ -116,7 +116,12 @@ def calculate_metrics(nc, nd, current_total_ru, current_total_kw, max_cabinet_ru
     
     # Calculate total NFS throughput and speed-to-space ratio
     total_nfs_throughput = nfs_read + nfs_write
+    total_s3_throughput = s3_read + s3_write  # Calculate total S3 throughput
     speed_to_space_ratio = (total_nfs_throughput / capacity) if capacity > 0 else 0
+    
+    # Calculate percentage utilization metrics
+    ru_percent = (current_total_ru / max_cabinet_ru * 100) if max_cabinet_ru > 0 else 0
+    power_percent = (current_total_kw / max_cabinet_power * 100) if max_cabinet_power > 0 else 0
 
     return {
         'capacity_tb': round(capacity, 1),
@@ -125,11 +130,14 @@ def calculate_metrics(nc, nd, current_total_ru, current_total_kw, max_cabinet_ru
         's3_read_gbps': round(s3_read, 1),
         's3_write_gbps': round(s3_write, 1),
         'total_nfs_gbps': round(total_nfs_throughput, 1),  # Added total NFS throughput
+        'total_s3_gbps': round(total_s3_throughput, 1),  # Added total S3 throughput
         'speed_to_space_ratio': round(speed_to_space_ratio, 3),  # Added speed-to-space ratio
         'total_ru': current_total_ru,
         'max_ru': max_cabinet_ru,  # Added max RU for percentage calculation
         'total_kw': round(current_total_kw, 2),
-        'max_kw': max_cabinet_power  # Added max power for percentage calculation
+        'max_kw': max_cabinet_power,  # Added max power for percentage calculation
+        'ru_percent': round(ru_percent, 1),  # Added rack unit utilization percentage
+        'power_percent': round(power_percent, 1)  # Added power utilization percentage
     }
 
 
@@ -237,14 +245,30 @@ def calculate_optimal_configs(rack_units, power_option, percent_ru, percent_powe
             # Update best configurations if this one is better
             best = update_best_configs(best, nc, nd, metrics)
             
-            # Append the current feasible point's data to the feasible_points list
+            # Append the current feasible point's data to the feasible_points list with ALL metrics
+            # This ensures the chart has all the data it needs for visualization
             feasible_points.append({
+                # Configuration details
                 'nc': nc,
                 'nd': nd,
+                
+                # Performance metrics
                 'capacity_tb': metrics['capacity_tb'],
+                'nfs_read_gbps': metrics['nfs_read_gbps'],
+                'nfs_write_gbps': metrics['nfs_write_gbps'],
+                's3_read_gbps': metrics['s3_read_gbps'],
+                's3_write_gbps': metrics['s3_write_gbps'],
                 'total_nfs_gbps': metrics['total_nfs_gbps'],
-                'speed_ratio': metrics['speed_to_space_ratio']
-                # Add other metrics if needed for tooltips later
+                'total_s3_gbps': metrics['total_s3_gbps'],
+                'speed_to_space_ratio': metrics['speed_to_space_ratio'],
+                
+                # Resource utilization metrics
+                'total_ru': metrics['total_ru'],
+                'max_ru': metrics['max_ru'],
+                'total_kw': metrics['total_kw'],
+                'max_kw': metrics['max_kw'],
+                'ru_percent': metrics['ru_percent'],
+                'power_percent': metrics['power_percent']
             })
 
     # Add feasibility check - if no config is found for a goal, mark it

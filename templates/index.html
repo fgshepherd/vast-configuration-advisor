@@ -1136,7 +1136,15 @@ Actual kW: ${metrics.total_kw} / ${metrics.max_kw} kW (${(metrics.total_kw / met
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
 
+                // Get the results from the API response
                 const results = await response.json();
+                
+                // Debug: Log the complete API response
+                console.log('API response data:', results);
+                console.log('Feasible points count:', results.feasible_points ? results.feasible_points.length : 0);
+                if (results.feasible_points && results.feasible_points.length > 0) {
+                    console.log('Sample feasible point:', results.feasible_points[0]);
+                }
 
                 if (results.error) {
                      resultsDiv.innerHTML = `<h2>Results</h2><p class="error-message">Error from server: ${results.error}</p>`;
@@ -1340,6 +1348,13 @@ Actual kW: ${metrics.total_kw} / ${metrics.max_kw} kW (${(metrics.total_kw / met
                     // Chart title is set via the y-axis title
                     // Add a comment to explain what's happening for future maintenance
                     console.log(`Initial chart setup with ${defaultMetric} as Y-axis metric`);
+                    
+                    // Debug: Log the datasets being used to initialize the chart
+                    console.log('Initializing chart with datasets:', JSON.stringify(optimalDatasets.map(ds => ({
+                        label: ds.label,
+                        pointCount: ds.data.length,
+                        samplePoints: ds.data.slice(0, 2)
+                    }))));
                     
                     myConfigChart = new Chart(ctx, {
                         type: 'scatter',
